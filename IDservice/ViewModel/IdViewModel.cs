@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Printing;
 using System.Windows;
 using System.Windows.Media.Imaging;
@@ -14,22 +15,71 @@ using Microsoft.Practices.Prism.ViewModel;
 
 namespace IDservice.ViewModel
 {
+    public enum AppModes
+    {
+        LayoutGroups,
+        AddLayoutGroup,
+        ViewLayoutGroup,
+        EditLayoutGroup,
+        AddLayout,
+        ViewLayout,
+        EditLayout,
+        PrintCards
+    }
+
     public class IdViewModel : NotificationObject
     {
+        private AppModes _prevAppMode;
+        private AppModes _appMode;
+        public AppModes AppMode
+        {
+            get { return _appMode; }
+            set
+            {
+                _prevAppMode = _appMode;
+                _appMode = value;                
+                switch (_appMode)
+                {
+                    case AppModes.LayoutGroups:
+                        Title = "Мероприятия";
+                        break;
+                    case AppModes.AddLayoutGroup:
+                        Title = "Добавление мероприятия";
+                        break;
+                    case AppModes.ViewLayoutGroup:
+                        Title = SelectedLayoutGroup.Name;
+                        break;
+                    case AppModes.EditLayoutGroup:
+                        Title = "Изменение мероприятия";
+                        break;
+                }
+                RaisePropertyChanged("AppMode");
+            }
+        }
+
+        private LayoutGroup _selectedLayoutGroup;
+        public LayoutGroup SelectedLayoutGroup
+        {
+            get { return _selectedLayoutGroup; }
+            set { _selectedLayoutGroup = value; RaisePropertyChanged("SelectedLayoutGroup"); }
+        }
+
         private readonly string _configPath =
             Path.Combine(new[] { Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), @"Layouts.xml" });
 
         public DelegateCommand<string> ChangeWindowStateCommand { get; set; }
+        public DelegateCommand AddItemCommand { get; set; }
+        public DelegateCommand SaveItemCommand { get; set; }
+        public DelegateCommand CancelCommand { get; set; }
 
         public IdViewModel()
         {
-            LayoutGroups.Add(new LayoutGroup() {Name = "Спартакиада номер один"});
-            LayoutGroups.Add(new LayoutGroup() { Name = "Спартакиада номер два" });
             Initialize();
-
             ChangeWindowStateCommand = new DelegateCommand<string>(ChangeWindowState);
-
-            Title = "Заголовок";            
+            AddItemCommand = new DelegateCommand(AddItem);
+            SaveItemCommand = new DelegateCommand(SaveItem);
+            CancelCommand = new DelegateCommand(Cancel);
+            AppMode = AppModes.LayoutGroups;
 
             var src = new BitmapImage();
             src.BeginInit();
@@ -48,16 +98,41 @@ namespace IDservice.ViewModel
             }
         }
 
+        private void SaveItem()
+        {
+            var layoutGroup = LayoutGroups.FirstOrDefault(l => l.Id == SelectedLayoutGroup.Id);
+            if (layoutGroup == null)
+                LayoutGroups.Add(SelectedLayoutGroup);
+            else
+            {
+                SelectedLayoutGroup.PartialClone(layoutGroup);
+            }
+            SelectedLayoutGroup = null;
+            SaveConfiguration();
+            AppMode = _prevAppMode;
+        }
+
+        private void Cancel()
+        {
+            AppMode = _prevAppMode;
+        }
+
+        private void AddItem()
+        {
+            SelectedLayoutGroup = new LayoutGroup();
+            AppMode = AppModes.AddLayoutGroup;
+        }
+
         private void Initialize()
         {
             try
             {
-                var serializer = new XmlSerializer(typeof (ObservableCollection<LayoutGroup>));
+                var serializer = new XmlSerializer(typeof(ObservableCollection<LayoutGroup>));
                 using (var stream = File.OpenRead(_configPath))
                 {
                     var reader = new XmlTextReader(stream);
                     if (serializer.CanDeserialize(reader))
-                        LayoutGroups = (ObservableCollection<LayoutGroup>) serializer.Deserialize(reader);
+                        LayoutGroups = (ObservableCollection<LayoutGroup>)serializer.Deserialize(reader);
                     else
                     {
                         throw new Exception();
@@ -85,7 +160,7 @@ namespace IDservice.ViewModel
             {
                 throw new Exception();
                 //todo: show exception to user and close application
-            }            
+            }
             SaveConfiguration();
         }
 
@@ -93,10 +168,10 @@ namespace IDservice.ViewModel
         {
             try
             {
-                var serializer = new XmlSerializer(typeof (ObservableCollection<LayoutGroup>));
+                var serializer = new XmlSerializer(typeof(ObservableCollection<LayoutGroup>));
                 using (var stream = File.OpenWrite(_configPath))
                 {
-                    serializer.Serialize(stream, LayoutGroups);                   
+                    serializer.Serialize(stream, LayoutGroups);
                 }
             }
             catch (Exception ex)

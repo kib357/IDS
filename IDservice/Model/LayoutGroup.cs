@@ -24,9 +24,10 @@ namespace IDservice.Model
         [XmlArray]
         public ObservableCollection<Layout> Layouts = new ObservableCollection<Layout>();
 
-        public LayoutGroup PartialClone()
+        public void PartialClone(LayoutGroup groupToCloneInto)
         {
-            return new LayoutGroup() {Id = Id, Name = Name};
+            groupToCloneInto.Id = Id;
+            groupToCloneInto.Name = Name;
         }
     }
 }

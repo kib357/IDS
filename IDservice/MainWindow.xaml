@@ -10,9 +10,9 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="ShellStyles.xaml"/>
                 <ResourceDictionary Source="StandardStyles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>
+            </ResourceDictionary.MergedDictionaries>            
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
-
+            <converters:ModeToVisibilityConverter x:Key="ModeToVisibilityConverter" />
         </ResourceDictionary>
     </Window.Resources>
     <Grid>        
@@ -24,7 +24,8 @@
                 </Grid>
                 <Grid Height="120" DockPanel.Dock="Bottom"/>
                 <Grid Margin="116,0,0,0">
-                    <controls:LayoutGroupsView/>                        
+                    <controls:AddLayoutGroupView Visibility="{Binding AppMode, Converter={StaticResource ModeToVisibilityConverter}, ConverterParameter=AddLayoutGroup}"/>
+                    <controls:LayoutGroupsView  Visibility="{Binding AppMode, Converter={StaticResource ModeToVisibilityConverter}, ConverterParameter=LayoutGroups}"/>                    
                 </Grid>
             </DockPanel>
         </Grid>
@@ -35,12 +36,15 @@
                     Command="{Binding ChangeWindowStateCommand}" CommandParameter="close"/>
         </StackPanel>
         <Grid Name="CommandBar" VerticalAlignment="Bottom" Height="100" Background="#d24726">
-            <StackPanel Orientation="Horizontal">
-                <Button Style="{DynamicResource EditAppBarButtonStyle}" Click="ButtonBase_OnClick"></Button>
-                <Button Style="{DynamicResource SaveAppBarButtonStyle}" Click="ButtonBase_OnClick"></Button>
-                <Button Style="{DynamicResource DeleteAppBarButtonStyle}" Click="ButtonBase_OnClick"></Button>
-                <Button Style="{DynamicResource DiscardAppBarButtonStyle}" Click="ButtonBase_OnClick"></Button>
-                <Button Style="{DynamicResource AddAppBarButtonStyle}" Click="ButtonBase_OnClick"></Button>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Style="{DynamicResource AddAppBarButtonStyle}" 
+                        Command="{Binding AddItemCommand}"/>
+                <Button Style="{DynamicResource EditAppBarButtonStyle}" />
+                <Button Style="{DynamicResource DeleteAppBarButtonStyle}" />
+                <Button Style="{DynamicResource SaveAppBarButtonStyle}"
+                        Command="{Binding SaveItemCommand}"/>
+                <Button Style="{DynamicResource DiscardAppBarButtonStyle}"
+                        Command="{Binding CancelCommand}"/>
             </StackPanel>
         </Grid>
         <!--<Grid Name="Area" Width="300" Height="200">
