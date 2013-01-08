@@ -1,10 +1,10 @@
-﻿<UserControl x:Class="IDservice.View.AddLayoutGroupView"
+﻿<UserControl x:Class="IDservice.View.EditLayoutGroupView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <Grid Background="White" Width="500px" HorizontalAlignment="Left">
         <StackPanel Margin="20,40">
             <TextBlock Text="Название" Foreground="#888888"/>
-            <TextBox Text="{Binding SelectedLayoutGroup.Name}"></TextBox>
+            <TextBox Text="{Binding SelectedItem.Name}"></TextBox>
         </StackPanel>
     </Grid>
 </UserControl>

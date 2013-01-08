@@ -16,8 +16,11 @@ namespace IDservice.Model.Converters
         {
             var currentMode = (AppModes)value;
             AppModes viewMode;
-            if (Enum.TryParse(parameter.ToString(), out viewMode) && currentMode == viewMode)
-                return Visibility.Visible;
+            foreach (var mode in parameter.ToString().Split(';'))
+            {
+                if (Enum.TryParse(mode, out viewMode) && currentMode == viewMode)
+                    return Visibility.Visible;    
+            }            
             return Visibility.Collapsed;
         }
 

@@ -32,11 +32,102 @@
     <SolidColorBrush x:Key="AppBarItemPressedForegroundBrush" Color="#d24726"></SolidColorBrush>
     <SolidColorBrush x:Key="AppBarItemDisabledForegroundBrush" Color="#CCCCCC"></SolidColorBrush>
 
+    <SolidColorBrush x:Key="SelectButtonBackgroundBrush" Color="#00000000"></SolidColorBrush>
+    <SolidColorBrush x:Key="SelectButtonForegroundBrush" Color="#000000"></SolidColorBrush>
+    <SolidColorBrush x:Key="SelectButtonHoverBackgroundBrush" Color="#22d24726"></SolidColorBrush>
+    <SolidColorBrush x:Key="SelectButtonPressedBackgroundBrush" Color="#d24726"></SolidColorBrush>
+    <SolidColorBrush x:Key="SelectButtonDisabledForegroundBrush" Color="#CCCCCC"></SolidColorBrush>
 
     <SolidColorBrush x:Key="FocusVisualStrokeBrush" Color="#FFFFFF"></SolidColorBrush>
     <SolidColorBrush x:Key="FocusVisualBlackStrokeBrush" Color="#000000"></SolidColorBrush>
     <SolidColorBrush x:Key="FocusVisualWhiteStrokeBrush" Color="#FFFFFF"></SolidColorBrush>
     <system:Double x:Key="ContentFontSize">20</system:Double>
+
+    <Style x:Key="ItemButtonStyle" TargetType="Button">
+        <Setter Property="MinWidth" Value="0"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="FontFamily" Value="Segoe UI Light"/>
+        <Setter Property="FontSize" Value="26"/>
+        <Setter Property="AutomationProperties.AutomationId" Value="SelectButton"/>
+        <Setter Property="AutomationProperties.Name" Value="Select"/>
+        <Setter Property="AutomationProperties.ItemType" Value="Navigation Button"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Grid Margin="0,0,0,10">
+                        <Grid Name="BackgroundGlyph" Background="{StaticResource SelectButtonBackgroundBrush}">
+                            <TextBlock x:Name="Content" Margin="10" LineHeight="26" LineStackingStrategy="BlockLineHeight"
+                                       Text="{TemplateBinding Content}" Foreground="{StaticResource SelectButtonForegroundBrush}"/>
+                        </Grid>
+                        <Rectangle 
+                                x:Name="FocusVisualWhite"                                
+                                IsHitTestVisible="False"
+                                Stroke="{StaticResource FocusVisualWhiteStrokeBrush}"
+                                StrokeEndLineCap="Square"
+                                StrokeDashArray="1,1"
+                                Opacity="0"
+                                StrokeDashOffset="1.5"/>
+                        <Rectangle 
+                                x:Name="FocusVisualBlack"
+                                IsHitTestVisible="False"
+                                Stroke="{StaticResource FocusVisualBlackStrokeBrush}"
+                                StrokeEndLineCap="Square"
+                                StrokeDashArray="1,1"
+                                Opacity="0"
+                                StrokeDashOffset="0.5"/>
+
+                        <VisualStateManager.VisualStateGroups>
+                            <VisualStateGroup x:Name="CommonStates">
+                                <VisualState x:Name="Normal"/>
+                                <VisualState x:Name="MouseOver">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGlyph" Storyboard.TargetProperty="Background">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SelectButtonHoverBackgroundBrush}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Pressed">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="BackgroundGlyph" Storyboard.TargetProperty="Background">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SelectButtonPressedBackgroundBrush}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Content" Storyboard.TargetProperty="Foreground">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource ApplicationTextBrush}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Disabled">
+                                    <Storyboard>
+                                        <ObjectAnimationUsingKeyFrames Storyboard.TargetName="Content" Storyboard.TargetProperty="Foreground">
+                                            <DiscreteObjectKeyFrame KeyTime="0" Value="{StaticResource SelectButtonDisabledForegroundBrush}"/>
+                                        </ObjectAnimationUsingKeyFrames>
+                                    </Storyboard>
+                                </VisualState>
+                            </VisualStateGroup>
+                            <VisualStateGroup x:Name="FocusStates">
+                                <VisualState x:Name="Focused">
+                                    <Storyboard>
+                                        <DoubleAnimation
+                                                Storyboard.TargetName="FocusVisualWhite"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1"
+                                                Duration="0"/>
+                                        <DoubleAnimation
+                                                Storyboard.TargetName="FocusVisualBlack"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1"
+                                                Duration="0"/>
+                                    </Storyboard>
+                                </VisualState>
+                                <VisualState x:Name="Unfocused" />
+                                <VisualState x:Name="PointerFocused" />
+                            </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
     <Style x:Key="BackButtonStyle" TargetType="Button">
         <Setter Property="MinWidth" Value="0"/>

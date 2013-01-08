@@ -10,22 +10,26 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="ShellStyles.xaml"/>
                 <ResourceDictionary Source="StandardStyles.xaml"/>
-            </ResourceDictionary.MergedDictionaries>            
+            </ResourceDictionary.MergedDictionaries>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
-            <converters:ModeToVisibilityConverter x:Key="ModeToVisibilityConverter" />
+            <converters:ModeToVisibilityConverter x:Key="M2V" />
         </ResourceDictionary>
     </Window.Resources>
-    <Grid>        
+    <Grid>
         <Grid Name="Main" Background="#F2F2F2">
             <DockPanel Margin="0,40,0,0">
                 <Grid Height="120" DockPanel.Dock="Top" Visibility="{Binding Title, Converter={StaticResource StringToVisibilityConverter}}">
-                    <Button Style="{DynamicResource BackButtonStyle}" Margin="40,19,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                    <Button Style="{DynamicResource BackButtonStyle}" Margin="40,19,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
+                            Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup;ViewLayout}"
+                            Command="{Binding BackCommand}"/>
                     <TextBlock Text="{Binding Title}" FontFamily="Segoe UI Light" FontSize="56" Margin="116,0,0,0"/>
                 </Grid>
                 <Grid Height="120" DockPanel.Dock="Bottom"/>
-                <Grid Margin="116,0,0,0">
-                    <controls:AddLayoutGroupView Visibility="{Binding AppMode, Converter={StaticResource ModeToVisibilityConverter}, ConverterParameter=AddLayoutGroup}"/>
-                    <controls:LayoutGroupsView  Visibility="{Binding AppMode, Converter={StaticResource ModeToVisibilityConverter}, ConverterParameter=LayoutGroups}"/>                    
+                <Grid Margin="120,0,0,0">
+                    <controls:EditLayoutView Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayout;EditLayout}"/>
+                    <controls:EditLayoutGroupView Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayoutGroup;EditLayoutGroup}"/>
+                    <controls:LayoutGroupsView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=LayoutGroups}"/>
+                    <controls:LayoutGroupView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup}"/>
                 </Grid>
             </DockPanel>
         </Grid>
@@ -37,14 +41,16 @@
         </StackPanel>
         <Grid Name="CommandBar" VerticalAlignment="Bottom" Height="100" Background="#d24726">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Style="{DynamicResource AddAppBarButtonStyle}" 
-                        Command="{Binding AddItemCommand}"/>
-                <Button Style="{DynamicResource EditAppBarButtonStyle}" />
-                <Button Style="{DynamicResource DeleteAppBarButtonStyle}" />
-                <Button Style="{DynamicResource SaveAppBarButtonStyle}"
-                        Command="{Binding SaveItemCommand}"/>
-                <Button Style="{DynamicResource DiscardAppBarButtonStyle}"
-                        Command="{Binding CancelCommand}"/>
+                <Button Style="{DynamicResource AddAppBarButtonStyle}" Command="{Binding AddItemCommand}"
+                        Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=LayoutGroups}"/>
+                <Button Style="{DynamicResource EditAppBarButtonStyle}" Command="{Binding EditItemCommand}"
+                        Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup;ViewLayout}"/>
+                <Button Style="{DynamicResource DeleteAppBarButtonStyle}" 
+                        Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup;ViewLayout}"/>
+                <Button Style="{DynamicResource SaveAppBarButtonStyle}" Command="{Binding SaveItemCommand}"
+                        Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayoutGroup;EditLayoutGroup;AddLayout;EditLayout}"/>
+                <Button Style="{DynamicResource DiscardAppBarButtonStyle}" Command="{Binding CancelCommand}"
+                        Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayoutGroup;EditLayoutGroup;AddLayout;EditLayout}"/>
             </StackPanel>
         </Grid>
         <!--<Grid Name="Area" Width="300" Height="200">

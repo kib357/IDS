@@ -78,15 +78,27 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Model\AppModes.cs" />
     <Compile Include="Model\Converters\ModeToVisibilityConverter.cs" />
     <Compile Include="Model\Converters\StringToVisibilityConverter.cs" />
-    <Compile Include="Model\ISelectedItem.cs" />
+    <Compile Include="Model\IEditableItem.cs" />
     <Compile Include="ViewModel\IdViewModel.cs" />
-    <Compile Include="View\AddLayoutGroupView.xaml.cs">
-      <DependentUpon>AddLayoutGroupView.xaml</DependentUpon>
+    <Compile Include="ViewModel\IdViewModelConfig.cs" />
+    <Compile Include="ViewModel\IdViewModelProperties.cs" />
+    <Compile Include="View\EditLayoutGroupView.xaml.cs">
+      <DependentUpon>EditLayoutGroupView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\EditLayoutView.xaml.cs">
+      <DependentUpon>EditLayoutView.xaml</DependentUpon>
     </Compile>
     <Compile Include="View\LayoutGroupsView.xaml.cs">
       <DependentUpon>LayoutGroupsView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LayoutGroupView.xaml.cs">
+      <DependentUpon>LayoutGroupView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="View\LayoutView.xaml.cs">
+      <DependentUpon>LayoutView.xaml</DependentUpon>
     </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
@@ -108,11 +120,23 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="View\AddLayoutGroupView.xaml">
+    <Page Include="View\EditLayoutGroupView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\EditLayoutView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="View\LayoutGroupsView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LayoutGroupView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="View\LayoutView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

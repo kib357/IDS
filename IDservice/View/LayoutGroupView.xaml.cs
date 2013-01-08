@@ -16,11 +16,11 @@ using System.Windows.Shapes;
 namespace IDservice.View
 {
     /// <summary>
-    /// Interaction logic for AddLayoutGroupView.xaml
+    /// Interaction logic for LayoutGroupView.xaml
     /// </summary>
-    public partial class AddLayoutGroupView : UserControl
+    public partial class LayoutGroupView : UserControl
     {
-        public AddLayoutGroupView()
+        public LayoutGroupView()
         {
             InitializeComponent();
         }
