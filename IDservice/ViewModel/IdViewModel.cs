@@ -14,10 +14,11 @@ namespace IDservice.ViewModel
 {
     public partial class IdViewModel : NotificationObject
     {
-        private AppModes _prevAppMode;               
+        private AppModes _prevAppMode;
+        private static string _startupPath { get { return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName); }}
 
         private readonly string _configPath =
-            Path.Combine(new[] { Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName), @"Layouts.xml" });
+            Path.Combine(new[] { _startupPath, @"Layouts.xml" });
 
         public DelegateCommand<string> ChangeWindowStateCommand { get; set; }
         public DelegateCommand BackCommand { get; set; }
@@ -63,65 +64,117 @@ namespace IDservice.ViewModel
             throw new NotImplementedException();
         }
 
-        private void EditItem()
-        {
-            if (SelectedItem == null) return;
-            SelectedItem.BeginEdit();
-            if (SelectedItem is LayoutGroup)
-                AppMode = AppModes.EditLayoutGroup;
-        }
-
         private void Back()
         {
             switch (AppMode)
             {
                 case AppModes.ViewLayoutGroup:
                     AppMode = AppModes.LayoutGroups;
+                    SelectedLayoutGroup = null;
+                    SelectedLayout = null;
                     break;
                 case AppModes.ViewLayout:
                     AppMode = AppModes.ViewLayoutGroup;
+                    SelectedLayout = null;
                     break;
             }
         }
 
         private void SelectItem(object item)
         {
-            if (item is IEditableItem)
+            switch (AppMode)
             {
-                SelectedItem = item as IEditableItem;
-                if (SelectedItem is LayoutGroup)
+                case AppModes.LayoutGroups:
+                    SelectedLayoutGroup = (LayoutGroup)item;
                     AppMode = AppModes.ViewLayoutGroup;
+                    break;
+                case AppModes.ViewLayoutGroup:
+                    SelectedLayout = (Layout)item;
+                    AppMode = AppModes.ViewLayout;
+                    break;
+            }
+        }
+
+        private void EditItem()
+        {
+            switch (AppMode)
+            {
+                case AppModes.ViewLayoutGroup:
+                    SelectedLayoutGroup.BeginEdit();
+                    AppMode = AppModes.EditLayoutGroup;
+                    break;
+                case AppModes.ViewLayout:
+                    SelectedLayout.BeginEdit();
+                    AppMode = AppModes.EditLayout;
+                    break;
             }
         }
 
         private void SaveItem()
         {
-            if (SelectedItem == null)
-                throw new Exception("Attemping to save not selected element");
-            var layoutGroup = LayoutGroups.FirstOrDefault(l => l.Id == SelectedItem.Id);
-            if (layoutGroup == null && SelectedItem is LayoutGroup)
-                LayoutGroups.Add(SelectedItem as LayoutGroup);
-            else
+            switch (AppMode)
             {
-                SelectedItem.EndEdit();
+                case AppModes.AddLayoutGroup:
+                case AppModes.EditLayoutGroup:
+                    SelectedLayoutGroup.EndEdit();
+                    SaveLayoutGroup();
+                    break;
+                case AppModes.AddLayout:
+                case AppModes.EditLayout:
+                    SelectedLayout.EndEdit();
+                    SaveLayout();
+                    break;
             }
             SaveConfiguration();
-            LayoutGroups = new ObservableCollection<LayoutGroup>(LayoutGroups.OrderBy(lg => lg.Name));
-            if (SelectedItem is LayoutGroup)
-                AppMode = AppModes.ViewLayoutGroup;
+        }
+
+        private void SaveLayoutGroup()
+        {
+
+            var layoutGroup = LayoutGroups.FirstOrDefault(l => l.Id == SelectedLayoutGroup.Id);
+            if (layoutGroup == null)
+                LayoutGroups.Add(SelectedLayoutGroup);
+            LayoutGroups = new ObservableCollection<LayoutGroup>(LayoutGroups);
+            AppMode = AppModes.ViewLayoutGroup;
+        }
+
+        private void SaveLayout()
+        {
+            var layout = SelectedLayoutGroup.Layouts.FirstOrDefault(l => l.Id == SelectedLayout.Id);
+            if (layout == null)
+                SelectedLayoutGroup.Layouts.Add(SelectedLayout);
+            Layouts = new ObservableCollection<Layout>(SelectedLayoutGroup.Layouts);
+            AppMode = AppModes.ViewLayout;
         }
 
         private void Cancel()
         {
-            if (SelectedItem != null)
-                SelectedItem.CancelEdit();
+            if (SelectedLayoutGroup != null)
+                SelectedLayoutGroup.CancelEdit();
+            if (SelectedLayout != null)
+                SelectedLayout.CancelEdit();
             AppMode = _prevAppMode;
         }
 
         private void AddItem()
         {
-            SelectedItem = new LayoutGroup();
-            AppMode = AppModes.AddLayoutGroup;
-        }               
+            switch (AppMode)
+            {
+                case AppModes.LayoutGroups:
+                    SelectedLayoutGroup = new LayoutGroup();
+                    AppMode = AppModes.AddLayoutGroup;
+                    break;
+                case AppModes.ViewLayoutGroup:
+                    SelectedLayout = new Layout();
+                    AppMode = AppModes.AddLayout;
+                    break;
+            }
+        }
+
+        public void LoadLayoutBackground(string fileName)
+        {
+            SelectedLayout.BackgroundImage = fileName;
+            RaisePropertyChanged("SelectedLayout");
+        }
     }
 }

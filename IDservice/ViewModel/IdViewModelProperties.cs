@@ -21,7 +21,7 @@ namespace IDservice.ViewModel
                         Title = "Мероприятия";
                         break;
                     case AppModes.ViewLayoutGroup:
-                        Title = SelectedItem.Name;
+                        Title = SelectedLayoutGroup.Name;
                         break;
                     case AppModes.AddLayoutGroup:
                         Title = "Добавление мероприятия";
@@ -30,7 +30,7 @@ namespace IDservice.ViewModel
                         Title = "Изменение мероприятия";
                         break;
                     case AppModes.ViewLayout:
-                        Title = SelectedItem.Name;
+                        Title = SelectedLayout.Name;
                         break;
                     case AppModes.AddLayout:
                         Title = "Добавление макета";
@@ -44,6 +44,13 @@ namespace IDservice.ViewModel
                 }
                 RaisePropertyChanged("AppMode");
             }
+        }
+
+        private BitmapImage _photo;
+        public BitmapImage Photo
+        {
+            get { return _photo; }
+            set { _photo = value; RaisePropertyChanged("Photo"); }
         }
 
         private BitmapImage _background;
@@ -67,13 +74,31 @@ namespace IDservice.ViewModel
             set { _layoutGroups = value; RaisePropertyChanged("LayoutGroups"); }
         }
 
-        private IEditableItem _selectedItem;
-        public IEditableItem SelectedItem
+        private LayoutGroup _selectedLayoutGroup;
+        public LayoutGroup SelectedLayoutGroup
         {
-            get { return _selectedItem; }
-            set { _selectedItem = value; RaisePropertyChanged("SelectedItem"); }
+            get { return _selectedLayoutGroup; }
+            set
+            {
+                _selectedLayoutGroup = value;
+                if (_selectedLayoutGroup != null)
+                    Layouts = _selectedLayoutGroup.Layouts;
+                RaisePropertyChanged("SelectedLayoutGroup");
+            }
         }
 
-        public Layout SelectedLayout { get; set; }
+        private ObservableCollection<Layout> _layouts = new ObservableCollection<Layout>();
+        public ObservableCollection<Layout> Layouts
+        {
+            get { return _layouts; }
+            set { _layouts = value; RaisePropertyChanged("Layouts"); }
+        }
+
+        private Layout _selectedLayout;
+        public Layout SelectedLayout
+        {
+            get { return _selectedLayout; }
+            set { _selectedLayout = value; RaisePropertyChanged("SelectedLayout"); }
+        }
     }
 }

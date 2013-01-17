@@ -4,7 +4,7 @@
     <Grid Background="White" Width="500px" HorizontalAlignment="Left">
         <StackPanel Margin="20,40">
             <TextBlock Text="Название" Foreground="#888888"/>
-            <TextBox Text="{Binding SelectedItem.Name}"></TextBox>
+            <TextBox Text="{Binding SelectedLayoutGroup.Name}"></TextBox>
         </StackPanel>
     </Grid>
 </UserControl>

@@ -1,9 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml.Serialization;
 
 namespace IDservice.Model
@@ -23,20 +18,39 @@ namespace IDservice.Model
         public double Width { get; set; }
         [XmlAttribute]
         public double Height { get; set; }
+        [XmlAttribute]
+        public string BackgroundImage { get; set; }
+        [XmlAttribute]
+        public double PhotoWidth { get; set; }
+        [XmlAttribute]
+        public double PhotoHeight { get; set; }
+        [XmlAttribute]
+        public double PhotoX { get; set; }
+        [XmlAttribute]
+        public double PhotoY { get; set; }
+
+        private Layout _layout;
 
         public void BeginEdit()
         {
-            throw new NotImplementedException();
+            _layout = new Layout {Id = Id, Name = Name, Width = Width, Height = Height};
         }
 
         public void EndEdit()
         {
-            throw new NotImplementedException();
+            _layout = null;
         }
 
         public void CancelEdit()
         {
-            throw new NotImplementedException();
+            if (_layout != null)
+            {
+                Id = _layout.Id;
+                Name = _layout.Name;
+                Width = _layout.Width;
+                Height = _layout.Height;
+                _layout = null;
+            }
         }
     }
 }

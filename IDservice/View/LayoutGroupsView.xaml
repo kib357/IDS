@@ -4,7 +4,7 @@
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="/StandardStyles.xaml"/>
+                <ResourceDictionary Source="../StandardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
@@ -12,7 +12,7 @@
         <ItemsControl ItemsSource="{Binding LayoutGroups, Mode=TwoWay}" Margin="10,40">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Button Content="{Binding Name, Mode=TwoWay}" Style="{StaticResource ItemButtonStyle}"
+                    <Button Content="{Binding Name}" Style="{StaticResource ItemButtonStyle}"
                             Command="{Binding DataContext.SelectItemCommand, RelativeSource={RelativeSource AncestorType=view:LayoutGroupsView}}"
                             CommandParameter="{Binding .}"/>
                 </DataTemplate>

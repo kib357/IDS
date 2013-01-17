@@ -41,7 +41,7 @@
         </StackPanel>
         <Grid Name="CommandBar" VerticalAlignment="Bottom" Height="100" Background="#d24726">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Style="{DynamicResource AddAppBarButtonStyle}" Command="{Binding AddItemCommand}"
+                <Button Style="{DynamicResource AddAppBarButtonStyle}" Command="{Binding AddItemCommand}" CommandParameter="LayoutGroup"
                         Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=LayoutGroups}"/>
                 <Button Style="{DynamicResource EditAppBarButtonStyle}" Command="{Binding EditItemCommand}"
                         Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup;ViewLayout}"/>

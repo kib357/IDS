@@ -1,7 +1,46 @@
 ﻿<UserControl x:Class="IDservice.View.EditLayoutView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=WPFToolkit.Extended"
+             xmlns:converters="clr-namespace:IDservice.Model.Converters"
+             Loaded="EditLayoutView_OnLoaded">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../StandardStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+            <converters:IndependentUnitToCmConverter x:Key="u2cm"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
-            
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="70*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Background="DarkGray">
+            <Viewbox Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}" Name="myViewBox">
+                <Canvas Name="myCanvas" Background="YellowGreen" Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}">
+                    <Grid Width="{Binding SelectedLayout.PhotoWidth, Mode=TwoWay}" Height="{Binding SelectedLayout.PhotoHeight, Mode=TwoWay}"
+                          Canvas.Left="{Binding SelectedLayout.PhotoX, Mode=TwoWay}" Canvas.Top="{Binding SelectedLayout.PhotoY, Mode=TwoWay}"
+                          Background="Teal">
+                        <Image Source="{Binding Photo}"></Image>
+                    </Grid>                    
+                </Canvas>
+            </Viewbox>         
+        </Grid>
+        <Grid Background="White" Width="500px" HorizontalAlignment="Left" Grid.Column="1" Margin="40,0,0,0">
+            <StackPanel Margin="20,30,20,40">
+                <TextBlock Text="Название" Style="{StaticResource OptionTitleStyle}"/>
+                <TextBox Text="{Binding SelectedLayout.Name}"></TextBox>
+                <TextBlock Text="Ширина" Style="{StaticResource OptionTitleStyle}"/>
+                <TextBox Text="{Binding SelectedLayout.Width, Converter={StaticResource u2cm}}"></TextBox>
+                <TextBlock Text="Высота" Style="{StaticResource OptionTitleStyle}"/>
+                <TextBox Text="{Binding SelectedLayout.Height, Converter={StaticResource u2cm}}"></TextBox>
+                <TextBlock Text="Фон" Style="{StaticResource OptionTitleStyle}"/>
+                <Button Style="{StaticResource PushButtonStyle}" Content="Изменить..." Width="120" Height="30" Click="Button_Click_1"></Button>
+                <TextBlock Text="{Binding SelectedLayout.BackgroundImage}"/>
+                <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoWidth}" FormatString="N0" HorizontalAlignment="Left"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>
