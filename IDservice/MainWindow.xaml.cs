@@ -2,6 +2,7 @@
 using System.Printing;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Input;
 using System.Windows.Shapes;
 using IDservice.ViewModel;
 using WinInterop = System.Windows.Interop;
@@ -248,6 +249,12 @@ namespace IDservice
         {
             var k = DataContext as IdViewModel;
             k.Title = new Random().Next().ToString();
+        }
+
+        private void CancelDeleteGrid_OnMouseUp(object sender, MouseButtonEventArgs e)
+        {
+            var vm = DataContext as IdViewModel;
+            vm.ShowDeleteConfirmation = false;
         }
     }
 }

@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=WPFToolkit.Extended"
              xmlns:converters="clr-namespace:IDservice.Model.Converters"
-             Loaded="EditLayoutView_OnLoaded">
+             Loaded="EditLayoutView_OnLoaded" IsVisibleChanged="EditLayoutView_OnIsVisibleChanged">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -27,22 +27,61 @@
                           Canvas.Left="{Binding SelectedLayout.PhotoX, Mode=TwoWay}" Canvas.Top="{Binding SelectedLayout.PhotoY, Mode=TwoWay}"
                           Background="Teal">
                         <Image Source="{Binding Photo}"></Image>
-                    </Grid>                    
+                    </Grid>
+                    <TextBlock Text="Darion Sandford" FontSize="{Binding SelectedLayout.NameFontSize}"
+                               Canvas.Left="{Binding SelectedLayout.NameX, Mode=TwoWay}" 
+                               Canvas.Top="{Binding SelectedLayout.NameY, Mode=TwoWay}"/>
                 </Canvas>
-            </Viewbox>         
+            </Viewbox>
         </Grid>
         <Grid Background="White" Width="500px" HorizontalAlignment="Left" Grid.Column="1" Margin="40,0,0,0">
             <StackPanel Margin="20,30,20,40">
                 <TextBlock Text="Название" Style="{StaticResource OptionTitleStyle}"/>
                 <TextBox Text="{Binding SelectedLayout.Name}"></TextBox>
-                <TextBlock Text="Ширина" Style="{StaticResource OptionTitleStyle}"/>
-                <TextBox Text="{Binding SelectedLayout.Width, Converter={StaticResource u2cm}}"></TextBox>
-                <TextBlock Text="Высота" Style="{StaticResource OptionTitleStyle}"/>
-                <TextBox Text="{Binding SelectedLayout.Height, Converter={StaticResource u2cm}}"></TextBox>
+                <TextBlock Text="Размер бейджа (см)" Style="{StaticResource OptionTitleStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.Width, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Minimum="5" Maximum="20" Increment="0.05"
+                                       HorizontalAlignment="Left" />
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.Height, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Minimum="5" Maximum="20" Increment="0.05"
+                                       HorizontalAlignment="Left" Margin="20,0,0,0"/>
+                </StackPanel>
                 <TextBlock Text="Фон" Style="{StaticResource OptionTitleStyle}"/>
                 <Button Style="{StaticResource PushButtonStyle}" Content="Изменить..." Width="120" Height="30" Click="Button_Click_1"></Button>
-                <TextBlock Text="{Binding SelectedLayout.BackgroundImage}"/>
-                <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoWidth}" FormatString="N0" HorizontalAlignment="Left"/>
+                <TextBlock Text="Размер фото (см)" Style="{StaticResource OptionTitleStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoWidth, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Minimum="2"
+                                       HorizontalAlignment="Left"/>
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoHeight, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Minimum="2"
+                                       HorizontalAlignment="Left" Margin="20,0,0,0"/>
+                </StackPanel>
+                <TextBlock Text="Отступ фото (см)" Style="{StaticResource OptionTitleStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoX, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Minimum="0"
+                                       HorizontalAlignment="Left"/>
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoY, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2"  Minimum="0"
+                                       HorizontalAlignment="Left" Margin="20,0,0,0"/>
+                </StackPanel>
+
+                <TextBlock Text="Размер шрифта имени" Style="{StaticResource OptionTitleStyle}"/>
+                <xctk:DoubleUpDown Value="{Binding SelectedLayout.NameFontSize, UpdateSourceTrigger=PropertyChanged}" 
+                                   FormatString="N0" Minimum="7" Maximum="128"
+                                   HorizontalAlignment="Left"/>
+
+                <TextBlock Text="Отступ имени (см)" Style="{StaticResource OptionTitleStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.NameX, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Minimum="0"
+                                       HorizontalAlignment="Left"/>
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.NameY, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Minimum="0"
+                                       HorizontalAlignment="Left" Margin="20,0,0,0"/>
+                </StackPanel>
             </StackPanel>
         </Grid>
     </Grid>

@@ -13,6 +13,7 @@ namespace IDservice.ViewModel
             get { return _appMode; }
             set
             {
+                ShowDeleteConfirmation = false;
                 _prevAppMode = _appMode;
                 _appMode = value;
                 switch (_appMode)
@@ -101,9 +102,17 @@ namespace IDservice.ViewModel
             set
             {
                 _selectedLayout = value;
-                //TryLoadBackground();
+                LoadLayoutBackground();
                 RaisePropertyChanged("SelectedLayout");
+                RaisePropertyChanged("Background");
             }
+        }
+
+        private bool _showDeleteConfirmation;
+        public bool ShowDeleteConfirmation
+        {
+            get { return _showDeleteConfirmation; }
+            set { _showDeleteConfirmation = value; RaisePropertyChanged("ShowDeleteConfirmation"); }
         }
     }
 }

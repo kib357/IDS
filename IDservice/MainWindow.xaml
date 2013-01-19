@@ -13,6 +13,7 @@
             </ResourceDictionary.MergedDictionaries>
             <converters:StringToVisibilityConverter x:Key="StringToVisibilityConverter" />
             <converters:ModeToVisibilityConverter x:Key="M2V" />
+            <BooleanToVisibilityConverter x:Key="B2V"/>
         </ResourceDictionary>
     </Window.Resources>
     <Grid>
@@ -20,7 +21,7 @@
             <DockPanel Margin="0,40,0,0">
                 <Grid Height="120" DockPanel.Dock="Top" Visibility="{Binding Title, Converter={StaticResource StringToVisibilityConverter}}">
                     <Button Style="{DynamicResource BackButtonStyle}" Margin="40,19,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
-                            Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup;ViewLayout}"
+                            Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup;ViewLayout;PrintCards}"
                             Command="{Binding BackCommand}"/>
                     <TextBlock Text="{Binding Title}" FontFamily="Segoe UI Light" FontSize="56" Margin="116,0,0,0"/>
                 </Grid>
@@ -30,6 +31,7 @@
                     <controls:EditLayoutGroupView Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayoutGroup;EditLayoutGroup}"/>
                     <controls:LayoutGroupsView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=LayoutGroups}"/>
                     <controls:LayoutGroupView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup}"/>
+                    <controls:PrintView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=PrintCards}"/>
                 </Grid>
             </DockPanel>
         </Grid>
@@ -45,7 +47,7 @@
                         Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=LayoutGroups}"/>
                 <Button Style="{DynamicResource EditAppBarButtonStyle}" Command="{Binding EditItemCommand}"
                         Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup;ViewLayout}"/>
-                <Button Style="{DynamicResource DeleteAppBarButtonStyle}" 
+                <Button Style="{DynamicResource DeleteAppBarButtonStyle}" Command="{Binding DeletePreviewCommand}"
                         Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup;ViewLayout}"/>
                 <Button Style="{DynamicResource SaveAppBarButtonStyle}" Command="{Binding SaveItemCommand}"
                         Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayoutGroup;EditLayoutGroup;AddLayout;EditLayout}"/>
@@ -58,5 +60,9 @@
         </Grid>
         <Button Content="Print" Name="Print" Click="Print_OnClick"
                 Width="100" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"></Button>-->
-    </Grid>
+        <Grid ZIndex="999" Visibility="{Binding ShowDeleteConfirmation, Converter={StaticResource B2V}}">
+            <Grid MouseUp="CancelDeleteGrid_OnMouseUp" Background="#01FFFFFF"></Grid>
+            <controls:DeleteConfirmation HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,110"/>            
+        </Grid>
+    </Grid>    
 </Window>

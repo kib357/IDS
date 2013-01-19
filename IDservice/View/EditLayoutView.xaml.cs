@@ -32,7 +32,7 @@ namespace IDservice.View
             if (dlg.ShowDialog() == true && DataContext is IdViewModel)
             {
                 var vm = DataContext as IdViewModel;
-                vm.LoadLayoutBackground(dlg.FileName);
+                vm.LoadNewLayoutBackground(dlg.FileName);
             }
         }
 
@@ -48,20 +48,26 @@ namespace IDservice.View
 
         private void CanvasOnPreviewMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
+            RemoveAdorner();
+
+            var element = e.Source as FrameworkElement;
+            if (element == null || element is Canvas || element is Image) return;
+
+            _selectedItemAdorner = new ResizeAdorner(element);
+            if (!(element is TextBlock))
+                AdornerLayer.GetAdornerLayer(element).Add(_selectedItemAdorner);
+            _isDragging = true;
+            myCanvas.CaptureMouse();
+        }
+
+        private void RemoveAdorner()
+        {
             if (_selectedItemAdorner != null)
             {
                 var selectedItemLayer = AdornerLayer.GetAdornerLayer(_selectedItemAdorner.AdornedElement);
                 selectedItemLayer.Remove(_selectedItemAdorner);
                 _selectedItemAdorner = null;
             }
-
-            var element = e.Source as FrameworkElement;
-            if (element == null || element is Canvas || element is Image) return;
-
-            _selectedItemAdorner = new ResizeAdorner(element);
-            AdornerLayer.GetAdornerLayer(element).Add(_selectedItemAdorner);
-            _isDragging = true;
-            myCanvas.CaptureMouse();
         }
 
         private void CanvasKeyUp(object sender, KeyEventArgs e)
@@ -130,6 +136,11 @@ namespace IDservice.View
         {
             _isDragging = false;
             myCanvas.ReleaseMouseCapture();
+        }
+
+        private void EditLayoutView_OnIsVisibleChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            RemoveAdorner();
         }
     }
 }

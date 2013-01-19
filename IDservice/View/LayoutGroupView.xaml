@@ -23,7 +23,7 @@
         <Grid Background="White" Width="300px" Margin="40,0,0,0" DockPanel.Dock="Left" HorizontalAlignment="Left">
             <StackPanel Margin="20,40">
                 <Button Style="{StaticResource AddCommandButtonStyle}" Command="{Binding AddItemCommand}"/>
-                <Button Style="{StaticResource CreateCardsCommandButtonStyle}" Command="{Binding CreateCardsCommand}"/>
+                <Button Style="{StaticResource CreateCardsCommandButtonStyle}" Command="{Binding PrintCardsCommand}"/>
             </StackPanel>
         </Grid>
     </DockPanel>

@@ -15,7 +15,7 @@ namespace IDservice.ViewModel
     public partial class IdViewModel : NotificationObject
     {
         private AppModes _prevAppMode;
-        private static string _startupPath { get { return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName); }}
+        private static string _startupPath { get { return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName); } }
 
         private readonly string _configPath;
         private readonly string _imagesPath;
@@ -25,13 +25,15 @@ namespace IDservice.ViewModel
         public DelegateCommand AddItemCommand { get; set; }
         public DelegateCommand EditItemCommand { get; set; }
         public DelegateCommand DeleteItemCommand { get; set; }
+        public DelegateCommand DeletePreviewCommand { get; set; }
         public DelegateCommand SaveItemCommand { get; set; }
         public DelegateCommand<object> SelectItemCommand { get; set; }
         public DelegateCommand CancelCommand { get; set; }
+        public DelegateCommand PrintCardsCommand { get; set; }
 
         public IdViewModel()
         {
-            _configPath = Path.Combine(new[] {_startupPath, @"Layouts.xml"});
+            _configPath = Path.Combine(new[] { _startupPath, @"Layouts.xml" });
             _imagesPath = Path.Combine(new[] { _startupPath, @"images" });
             Initialize();
             ChangeWindowStateCommand = new DelegateCommand<string>(ChangeWindowState);
@@ -39,9 +41,11 @@ namespace IDservice.ViewModel
             AddItemCommand = new DelegateCommand(AddItem);
             EditItemCommand = new DelegateCommand(EditItem);
             DeleteItemCommand = new DelegateCommand(DeleteItem);
+            DeletePreviewCommand = new DelegateCommand(DeletePreview);
             SaveItemCommand = new DelegateCommand(SaveItem);
             SelectItemCommand = new DelegateCommand<object>(SelectItem);
             CancelCommand = new DelegateCommand(Cancel);
+            PrintCardsCommand = new DelegateCommand(PrintCards);
             AppMode = AppModes.LayoutGroups;
 
             var printServer = new LocalPrintServer();
@@ -54,9 +58,32 @@ namespace IDservice.ViewModel
             }
         }
 
+        private void PrintCards()
+        {
+            AppMode = AppModes.PrintCards;
+        }
+
+        private void DeletePreview()
+        {
+            ShowDeleteConfirmation = true;
+        }
+
         private void DeleteItem()
         {
-            throw new NotImplementedException();
+            switch (AppMode)
+            {
+                case AppModes.ViewLayoutGroup:
+                    LayoutGroups.Remove(SelectedLayoutGroup);
+                    AppMode = AppModes.LayoutGroups;
+                    SelectedLayoutGroup = null;
+                    SelectedLayout = null;
+                    break;
+                case AppModes.ViewLayout:
+                    Layouts.Remove(SelectedLayout);
+                    AppMode = AppModes.ViewLayoutGroup;
+                    SelectedLayout = null;
+                    break;
+            }
         }
 
         private void Back()
@@ -71,6 +98,9 @@ namespace IDservice.ViewModel
                 case AppModes.ViewLayout:
                     AppMode = AppModes.ViewLayoutGroup;
                     SelectedLayout = null;
+                    break;
+                case AppModes.PrintCards:
+                    AppMode = AppModes.ViewLayoutGroup;
                     break;
             }
         }
@@ -165,7 +195,7 @@ namespace IDservice.ViewModel
             }
         }
 
-        public void LoadLayoutBackground(string fileName)
+        public void LoadNewLayoutBackground(string fileName)
         {
             Background = null;
 
@@ -180,19 +210,16 @@ namespace IDservice.ViewModel
             encoder.Frames.Add(BitmapFrame.Create(objImage));
             using (var filestream = new FileStream(photolocation, FileMode.Create))
                 encoder.Save(filestream);
-        
-            TryLoadBackground();
+
+            LoadLayoutBackground();
             RaisePropertyChanged("SelectedLayout");
         }
 
-        private void TryLoadBackground()
+        private void LoadLayoutBackground()
         {
             if (SelectedLayout == null) return;
             var path = Path.Combine(_imagesPath, SelectedLayout.Id + "_background.jpg");
-            if (File.Exists(path))
-            {
-                Background = path;                
-            }
+            Background = path;
         }
     }
 }
