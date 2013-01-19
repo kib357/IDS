@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Xml.Serialization;
+using Microsoft.Practices.Prism.ViewModel;
 
 namespace IDservice.Model
 {
-    public class Layout : IEditableItem
+    public class Layout : NotificationObject, IEditableItem
     {
         public Layout()
         {

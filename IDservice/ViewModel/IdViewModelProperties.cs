@@ -53,8 +53,8 @@ namespace IDservice.ViewModel
             set { _photo = value; RaisePropertyChanged("Photo"); }
         }
 
-        private BitmapImage _background;
-        public BitmapImage Background
+        private string _background;
+        public string Background
         {
             get { return _background; }
             set { _background = value; RaisePropertyChanged("Background"); }
@@ -98,7 +98,12 @@ namespace IDservice.ViewModel
         public Layout SelectedLayout
         {
             get { return _selectedLayout; }
-            set { _selectedLayout = value; RaisePropertyChanged("SelectedLayout"); }
+            set
+            {
+                _selectedLayout = value;
+                //TryLoadBackground();
+                RaisePropertyChanged("SelectedLayout");
+            }
         }
     }
 }

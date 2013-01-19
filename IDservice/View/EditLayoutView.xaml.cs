@@ -56,7 +56,7 @@ namespace IDservice.View
             }
 
             var element = e.Source as FrameworkElement;
-            if (element == null || element is Canvas) return;
+            if (element == null || element is Canvas || element is Image) return;
 
             _selectedItemAdorner = new ResizeAdorner(element);
             AdornerLayer.GetAdornerLayer(element).Add(_selectedItemAdorner);

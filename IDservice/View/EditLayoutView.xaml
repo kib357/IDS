@@ -10,6 +10,7 @@
                 <ResourceDictionary Source="../StandardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converters:IndependentUnitToCmConverter x:Key="u2cm"/>
+            <converters:ImageConverter x:Key="IC"/>
         </ResourceDictionary>
     </UserControl.Resources>
     <Grid>
@@ -20,6 +21,8 @@
         <Grid Grid.Column="0" Background="DarkGray">
             <Viewbox Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}" Name="myViewBox">
                 <Canvas Name="myCanvas" Background="YellowGreen" Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}">
+                    <Image Source="{Binding Background, Converter={StaticResource IC}}" Stretch="Fill" 
+                           Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}"/>
                     <Grid Width="{Binding SelectedLayout.PhotoWidth, Mode=TwoWay}" Height="{Binding SelectedLayout.PhotoHeight, Mode=TwoWay}"
                           Canvas.Left="{Binding SelectedLayout.PhotoX, Mode=TwoWay}" Canvas.Top="{Binding SelectedLayout.PhotoY, Mode=TwoWay}"
                           Background="Teal">

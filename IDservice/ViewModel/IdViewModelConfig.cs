@@ -12,14 +12,26 @@ namespace IDservice.ViewModel
     {
         private void Initialize()
         {
+            CheckImageFolderExists();
+            LoadConfiguration();
+        }
+
+        private void CheckImageFolderExists()
+        {
+            if (!Directory.Exists(_imagesPath))
+                Directory.CreateDirectory(_imagesPath);
+        }
+
+        private void LoadConfiguration()
+        {
             try
             {
-                var serializer = new XmlSerializer(typeof(ObservableCollection<LayoutGroup>));
+                var serializer = new XmlSerializer(typeof (ObservableCollection<LayoutGroup>));
                 using (var stream = File.OpenRead(_configPath))
                 {
                     var reader = new XmlTextReader(stream);
                     if (serializer.CanDeserialize(reader))
-                        LayoutGroups = (ObservableCollection<LayoutGroup>)serializer.Deserialize(reader);
+                        LayoutGroups = (ObservableCollection<LayoutGroup>) serializer.Deserialize(reader);
                     else
                     {
                         throw new Exception();

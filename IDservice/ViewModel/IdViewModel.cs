@@ -17,8 +17,8 @@ namespace IDservice.ViewModel
         private AppModes _prevAppMode;
         private static string _startupPath { get { return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName); }}
 
-        private readonly string _configPath =
-            Path.Combine(new[] { _startupPath, @"Layouts.xml" });
+        private readonly string _configPath;
+        private readonly string _imagesPath;
 
         public DelegateCommand<string> ChangeWindowStateCommand { get; set; }
         public DelegateCommand BackCommand { get; set; }
@@ -31,6 +31,8 @@ namespace IDservice.ViewModel
 
         public IdViewModel()
         {
+            _configPath = Path.Combine(new[] {_startupPath, @"Layouts.xml"});
+            _imagesPath = Path.Combine(new[] { _startupPath, @"images" });
             Initialize();
             ChangeWindowStateCommand = new DelegateCommand<string>(ChangeWindowState);
             BackCommand = new DelegateCommand(Back);
@@ -41,13 +43,6 @@ namespace IDservice.ViewModel
             SelectItemCommand = new DelegateCommand<object>(SelectItem);
             CancelCommand = new DelegateCommand(Cancel);
             AppMode = AppModes.LayoutGroups;
-
-            var src = new BitmapImage();
-            src.BeginInit();
-            src.UriSource = new Uri("background.jpg", UriKind.Relative);
-            src.CacheOption = BitmapCacheOption.OnLoad;
-            src.EndInit();
-            Background = src;
 
             var printServer = new LocalPrintServer();
 
@@ -134,7 +129,6 @@ namespace IDservice.ViewModel
             var layoutGroup = LayoutGroups.FirstOrDefault(l => l.Id == SelectedLayoutGroup.Id);
             if (layoutGroup == null)
                 LayoutGroups.Add(SelectedLayoutGroup);
-            LayoutGroups = new ObservableCollection<LayoutGroup>(LayoutGroups);
             AppMode = AppModes.ViewLayoutGroup;
         }
 
@@ -173,8 +167,32 @@ namespace IDservice.ViewModel
 
         public void LoadLayoutBackground(string fileName)
         {
-            SelectedLayout.BackgroundImage = fileName;
+            Background = null;
+
+            var objImage = new BitmapImage();
+            objImage.BeginInit();
+            objImage.UriSource = new Uri(fileName, UriKind.RelativeOrAbsolute);
+            objImage.CacheOption = BitmapCacheOption.OnLoad;
+            objImage.EndInit();
+
+            var encoder = new JpegBitmapEncoder();
+            var photolocation = Path.Combine(_imagesPath, SelectedLayout.Id + "_background.jpg");  //file name 
+            encoder.Frames.Add(BitmapFrame.Create(objImage));
+            using (var filestream = new FileStream(photolocation, FileMode.Create))
+                encoder.Save(filestream);
+        
+            TryLoadBackground();
             RaisePropertyChanged("SelectedLayout");
+        }
+
+        private void TryLoadBackground()
+        {
+            if (SelectedLayout == null) return;
+            var path = Path.Combine(_imagesPath, SelectedLayout.Id + "_background.jpg");
+            if (File.Exists(path))
+            {
+                Background = path;                
+            }
         }
     }
 }
