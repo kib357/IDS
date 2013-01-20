@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
-using System.ComponentModel;
-using System.Windows.Media.Imaging;
+using System.Printing;
 using IDservice.Model;
 
 namespace IDservice.ViewModel
@@ -47,8 +46,36 @@ namespace IDservice.ViewModel
             }
         }
 
-        private BitmapImage _photo;
-        public BitmapImage Photo
+        private PrintQueue _selectedPrinter;
+        public PrintQueue SelectedPrinter
+        {
+            get { return _selectedPrinter; }
+            set { _selectedPrinter = value; RaisePropertyChanged("SelectedPrinter"); }
+        }
+
+        private PrintQueueCollection _printers;
+        public PrintQueueCollection Printers
+        {
+            get { return _printers; }
+            set { _printers = value; RaisePropertyChanged("Printers"); }
+        }
+
+        private string _cardUserName = "Фамилия Имя";
+        public string CardUserName
+        {
+            get { return _cardUserName; }
+            set { _cardUserName = value; RaisePropertyChanged("CardUserName"); }
+        }
+
+        private ObservableCollection<string> _imageList = new ObservableCollection<string>();
+        public ObservableCollection<string> ImageList
+        {
+            get { return _imageList; }
+            set { _imageList = value; RaisePropertyChanged("ImageList"); }
+        }
+
+        private string _photo;
+        public string Photo
         {
             get { return _photo; }
             set { _photo = value; RaisePropertyChanged("Photo"); }

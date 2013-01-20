@@ -26,11 +26,20 @@
                     <Grid Width="{Binding SelectedLayout.PhotoWidth, Mode=TwoWay}" Height="{Binding SelectedLayout.PhotoHeight, Mode=TwoWay}"
                           Canvas.Left="{Binding SelectedLayout.PhotoX, Mode=TwoWay}" Canvas.Top="{Binding SelectedLayout.PhotoY, Mode=TwoWay}"
                           Background="Teal">
-                        <Image Source="{Binding Photo}"></Image>
+                        <Viewbox IsHitTestVisible="False">
+                            <Canvas Width="122" Height="127">
+                                <Path Width="58.2585" Height="63.6594" Canvas.Left="31.3731" Canvas.Top="1.5587" Stretch="Fill" Fill="#DDDDDD" Data="F1 M 89.3215,29.5476C 91.6481,46.9956 80.6281,62.8609 64.7135,64.9823C 48.7961,67.1036 34.0095,54.6769 31.6828,37.2303C 29.3575,19.7809 40.3761,3.9156 56.2921,1.79427C 72.2095,-0.325737 86.9961,12.0996 89.3215,29.5476 Z "/>
+                                <Path Width="115.336" Height="62.3316" Canvas.Left="4.23853" Canvas.Top="64.3351" Stretch="Fill" Fill="#DDDDDD" Data="F1 M 4.464,126.667C 4.464,126.667 3.8147e-006,67.952 30.7973,64.7253C 35.6667,63.6187 38.6867,65.2173 38.6867,65.2173C 38.6867,65.2173 50.3173,76 60.5027,76C 70.6867,76 85.7973,65.2173 85.7973,65.2173C 85.7973,65.2173 88.464,63.3333 93.3533,65.2173C 116.353,70.1107 113.687,82.7773 116.241,93.444C 117.304,104.037 119.575,126.667 119.575,126.667L 4.464,126.667 Z "/>
+                            </Canvas>
+                        </Viewbox>
                     </Grid>
-                    <TextBlock Text="Darion Sandford" FontSize="{Binding SelectedLayout.NameFontSize}"
-                               Canvas.Left="{Binding SelectedLayout.NameX, Mode=TwoWay}" 
-                               Canvas.Top="{Binding SelectedLayout.NameY, Mode=TwoWay}"/>
+                    <Grid Width="{Binding SelectedLayout.NameWidth, Mode=TwoWay}" Height="{Binding SelectedLayout.NameHeight, Mode=TwoWay}"
+                          Canvas.Left="{Binding SelectedLayout.NameX, Mode=TwoWay}" Canvas.Top="{Binding SelectedLayout.NameY, Mode=TwoWay}"
+                          Background="#55FFFFFF">
+                        <Viewbox IsHitTestVisible="False">
+                            <TextBlock Text="Darion Sandford" Foreground="{Binding SelectedLayout.NameBrush}"/>
+                        </Viewbox>
+                    </Grid>
                 </Canvas>
             </Viewbox>
         </Grid>
@@ -52,36 +61,43 @@
                 <TextBlock Text="Размер фото (см)" Style="{StaticResource OptionTitleStyle}"/>
                 <StackPanel Orientation="Horizontal">
                     <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoWidth, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
-                                       FormatString="F2" Minimum="2"
+                                       FormatString="F2" Minimum="1" Increment="0.1"
                                        HorizontalAlignment="Left"/>
                     <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoHeight, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
-                                       FormatString="F2" Minimum="2"
+                                       FormatString="F2" Minimum="1" Increment="0.1"
                                        HorizontalAlignment="Left" Margin="20,0,0,0"/>
                 </StackPanel>
                 <TextBlock Text="Отступ фото (см)" Style="{StaticResource OptionTitleStyle}"/>
                 <StackPanel Orientation="Horizontal">
                     <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoX, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
-                                       FormatString="F2" Minimum="0"
+                                       FormatString="F2" Minimum="0" Increment="0.1"
                                        HorizontalAlignment="Left"/>
                     <xctk:DoubleUpDown Value="{Binding SelectedLayout.PhotoY, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
-                                       FormatString="F2"  Minimum="0"
+                                       FormatString="F2"  Minimum="0" Increment="0.1"
                                        HorizontalAlignment="Left" Margin="20,0,0,0"/>
                 </StackPanel>
 
-                <TextBlock Text="Размер шрифта имени" Style="{StaticResource OptionTitleStyle}"/>
-                <xctk:DoubleUpDown Value="{Binding SelectedLayout.NameFontSize, UpdateSourceTrigger=PropertyChanged}" 
-                                   FormatString="N0" Minimum="7" Maximum="128"
-                                   HorizontalAlignment="Left"/>
+                <TextBlock Text="Размер надписи (см)" Style="{StaticResource OptionTitleStyle}"/>
+                <StackPanel Orientation="Horizontal">
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.NameWidth, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Minimum="1" Increment="0.1"
+                                       HorizontalAlignment="Left"/>
+                    <xctk:DoubleUpDown Value="{Binding SelectedLayout.NameHeight, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Minimum="1" Increment="0.1"
+                                       HorizontalAlignment="Left" Margin="20,0,0,0"/>
+                </StackPanel>
 
-                <TextBlock Text="Отступ имени (см)" Style="{StaticResource OptionTitleStyle}"/>
+                <TextBlock Text="Отступ надписи (см)" Style="{StaticResource OptionTitleStyle}"/>
                 <StackPanel Orientation="Horizontal">
                     <xctk:DoubleUpDown Value="{Binding SelectedLayout.NameX, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
-                                       FormatString="F2" Minimum="0"
+                                       FormatString="F2" Minimum="0" Increment="0.1"
                                        HorizontalAlignment="Left"/>
                     <xctk:DoubleUpDown Value="{Binding SelectedLayout.NameY, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
-                                       FormatString="F2" Minimum="0"
+                                       FormatString="F2" Minimum="0" Increment="0.1" 
                                        HorizontalAlignment="Left" Margin="20,0,0,0"/>
                 </StackPanel>
+                <TextBlock Text="Цвет надписи" Style="{StaticResource OptionTitleStyle}"/>
+                <xctk:ColorPicker Width="100" HorizontalAlignment="Left" SelectedColor="{Binding SelectedLayout.NameColor}"/>
             </StackPanel>
         </Grid>
     </Grid>

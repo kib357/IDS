@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Windows.Media;
 using System.Xml.Serialization;
 using Microsoft.Practices.Prism.ViewModel;
 
@@ -16,9 +17,11 @@ namespace IDservice.Model
             _photoHeight = 75.5906;
             _photoX = 0;
             _photoY = 0;
+            _nameWidth = 90;
+            _nameHeight = 30;
             _nameX = 0;
             _nameY = 0;
-            _nameFontSize = 8;
+            _nameColor = Color.FromRgb(0, 0, 0);
         }
 
         [XmlAttribute]
@@ -36,6 +39,7 @@ namespace IDservice.Model
             get { return _width; }
             set
             {
+                if (value < 0) return;
                 if (value < _width)
                 {
                     var ratio = value / _width;
@@ -52,6 +56,7 @@ namespace IDservice.Model
             get { return _height; }
             set
             {
+                if (value < 0) return;
                 if (value < _height)
                 {
                     var ratio = value / _height;
@@ -64,11 +69,12 @@ namespace IDservice.Model
 
         private void ResizeElemenetsByRatio(double ratio)
         {
-            NameFontSize *= ratio;
             PhotoWidth *= ratio;
             PhotoHeight *= ratio;
             PhotoX *= ratio;
             PhotoY *= ratio;
+            NameWidth *= ratio;
+            NameHeight *= ratio;
             NameX *= ratio;
             NameY *= ratio;
         }
@@ -79,49 +85,89 @@ namespace IDservice.Model
         public double PhotoWidth
         {
             get { return _photoWidth; }
-            set { _photoWidth = value; RaisePropertyChanged("PhotoWidth"); }
+            set { _photoWidth = Math.Max(0, value); RaisePropertyChanged("PhotoWidth"); }
         }
 
         [XmlAttribute]
         public double PhotoHeight
         {
             get { return _photoHeight; }
-            set { _photoHeight = value; RaisePropertyChanged("PhotoHeight"); }
+            set { _photoHeight = Math.Max(0, value); RaisePropertyChanged("PhotoHeight"); }
         }
 
         [XmlAttribute]
         public double PhotoX
         {
             get { return _photoX; }
-            set { _photoX = value; RaisePropertyChanged("PhotoX"); }
+            set { _photoX = Math.Max(0, value); RaisePropertyChanged("PhotoX"); }
         }
 
         [XmlAttribute]
         public double PhotoY
         {
             get { return _photoY; }
-            set { _photoY = value; RaisePropertyChanged("PhotoY"); }
+            set { _photoY = Math.Max(0, value); RaisePropertyChanged("PhotoY"); }
         }
 
         [XmlAttribute]
         public double NameX
         {
             get { return _nameX; }
-            set { _nameX = value; RaisePropertyChanged("NameX"); }
+            set { _nameX = Math.Max(0, value); RaisePropertyChanged("NameX"); }
         }
 
         [XmlAttribute]
         public double NameY
         {
             get { return _nameY; }
-            set { _nameY = value; RaisePropertyChanged("NameY"); }
+            set { _nameY = Math.Max(0, value); RaisePropertyChanged("NameY"); }
         }
 
         [XmlAttribute]
-        public double NameFontSize
+        public double NameWidth
         {
-            get { return _nameFontSize; }
-            set { _nameFontSize = value; RaisePropertyChanged("NameFontSize"); }
+            get { return _nameWidth; }
+            set { _nameWidth = Math.Max(0, value); RaisePropertyChanged("NameWidth"); }
+        }
+
+        [XmlAttribute]
+        public double NameHeight
+        {
+            get { return _nameHeight; }
+            set { _nameHeight = Math.Max(0, value); RaisePropertyChanged("NameHeight"); }
+        }
+
+        [XmlAttribute]
+        private string SerializedColor
+        {
+            get { return NameColor.ToString(); }
+            set
+            {
+                try
+                {
+                    byte a = Convert.ToByte(value.Substring(1, 2));
+                    byte r = Convert.ToByte(value.Substring(3, 2));
+                    byte g = Convert.ToByte(value.Substring(5, 2));
+                    byte b = Convert.ToByte(value.Substring(7, 2));
+                    NameColor = Color.FromArgb(a, r, g, b);
+                }
+                catch (Exception)
+                {
+                    NameColor = Color.FromRgb(0, 0, 0);
+                }
+
+            }
+        }
+
+        public Color NameColor
+        {
+            get { return _nameColor; }
+            set { _nameColor = value; RaisePropertyChanged("NameColor"); RaisePropertyChanged("NameBrush"); }
+        }
+
+        public SolidColorBrush NameBrush
+        {
+            get { return new SolidColorBrush(NameColor);}
         }
 
         private Layout _layout;
@@ -133,12 +179,27 @@ namespace IDservice.Model
         private double _photoY;
         private double _nameX;
         private double _nameY;
-        private double _nameFontSize;
+        private double _nameWidth;
+        private double _nameHeight;
+        private Color _nameColor;
         private string _name;
 
         public void BeginEdit()
         {
-            _layout = new Layout { Id = Id, Name = Name, Width = Width, Height = Height };
+            _layout = new Layout { Id = Id,
+                                   Name = Name,
+                                   Width = Width,
+                                   Height = Height,
+                                   PhotoWidth = PhotoWidth,
+                                   PhotoHeight = PhotoHeight,
+                                   PhotoX = PhotoX,
+                                   PhotoY = PhotoY,
+                                   NameWidth = NameWidth,
+                                   NameHeight = NameHeight,
+                                   NameX = NameX,
+                                   NameY = NameY,
+                                   NameColor = NameColor
+            };
         }
 
         public void EndEdit()
@@ -154,6 +215,15 @@ namespace IDservice.Model
                 Name = _layout.Name;
                 Width = _layout.Width;
                 Height = _layout.Height;
+                PhotoWidth = _layout.PhotoWidth;
+                PhotoHeight = _layout.PhotoHeight;
+                PhotoX = _layout.PhotoX;
+                PhotoY = _layout.PhotoY;
+                NameWidth = _layout.NameWidth;
+                NameHeight = _layout.NameHeight;
+                NameX = _layout.NameX;
+                NameY = _layout.NameY;
+                NameColor = _layout.NameColor;
                 _layout = null;
             }
         }

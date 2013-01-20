@@ -75,7 +75,7 @@ namespace IDservice.ViewModel
             }
             catch (Exception ex)
             {
-                throw new Exception();
+                throw new Exception("Save error");
                 //todo: show exception to user and close application
             }
         }

@@ -11,10 +11,10 @@ namespace IDservice.Model.Converters
         {
             try
             {
-                var objImage = new BitmapImage();                
+                var objImage = new BitmapImage();
                 objImage.BeginInit();
                 objImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;
-                objImage.UriSource = new Uri ((string)value, UriKind.RelativeOrAbsolute);
+                objImage.UriSource = new Uri((string)value, UriKind.RelativeOrAbsolute);
                 objImage.CacheOption = BitmapCacheOption.OnLoad;
                 objImage.EndInit();
                 return objImage;

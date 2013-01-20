@@ -27,6 +27,7 @@
                 </Grid>
                 <Grid Height="120" DockPanel.Dock="Bottom"/>
                 <Grid Margin="120,0,0,0">
+                    <controls:LayoutView Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayout}"/>
                     <controls:EditLayoutView Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayout;EditLayout}"/>
                     <controls:EditLayoutGroupView Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayoutGroup;EditLayoutGroup}"/>
                     <controls:LayoutGroupsView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=LayoutGroups}"/>

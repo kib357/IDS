@@ -1,6 +1,5 @@
 using System;
 using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -19,6 +18,7 @@ namespace IDservice.ViewModel
 
         private readonly string _configPath;
         private readonly string _imagesPath;
+        private readonly string _photoPath;
 
         public DelegateCommand<string> ChangeWindowStateCommand { get; set; }
         public DelegateCommand BackCommand { get; set; }
@@ -35,6 +35,7 @@ namespace IDservice.ViewModel
         {
             _configPath = Path.Combine(new[] { _startupPath, @"Layouts.xml" });
             _imagesPath = Path.Combine(new[] { _startupPath, @"images" });
+            _photoPath = Path.Combine(_startupPath, "photo");
             Initialize();
             ChangeWindowStateCommand = new DelegateCommand<string>(ChangeWindowState);
             BackCommand = new DelegateCommand(Back);
@@ -48,14 +49,13 @@ namespace IDservice.ViewModel
             PrintCardsCommand = new DelegateCommand(PrintCards);
             AppMode = AppModes.LayoutGroups;
 
-            var printServer = new LocalPrintServer();
+            var printServer = new LocalPrintServer();            
+            Printers = printServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections });
+            var sPrinter = LocalPrintServer.GetDefaultPrintQueue();
+            SelectedPrinter = Printers.FirstOrDefault(p => p.Name == sPrinter.Name && p.FullName == sPrinter.FullName);
 
-            PrintQueueCollection printQueuesOnLocalServer = printServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections });
-
-            foreach (PrintQueue printer in printQueuesOnLocalServer)
-            {
-                Debug.WriteLine("\tThe shared printer : " + printer.Name);
-            }
+            foreach (var path in Directory.GetFiles(_photoPath).Where(f => f.ToLower().EndsWith(".jpg")))
+                    ImageList.Add(path);
         }
 
         private void PrintCards()
@@ -84,6 +84,7 @@ namespace IDservice.ViewModel
                     SelectedLayout = null;
                     break;
             }
+            SaveConfiguration();
         }
 
         private void Back()
@@ -101,6 +102,7 @@ namespace IDservice.ViewModel
                     break;
                 case AppModes.PrintCards:
                     AppMode = AppModes.ViewLayoutGroup;
+                    SelectedLayout = null;
                     break;
             }
         }
@@ -116,6 +118,9 @@ namespace IDservice.ViewModel
                 case AppModes.ViewLayoutGroup:
                     SelectedLayout = (Layout)item;
                     AppMode = AppModes.ViewLayout;
+                    break;
+                case AppModes.PrintCards:
+                    SelectedLayout = (Layout)item;
                     break;
             }
         }

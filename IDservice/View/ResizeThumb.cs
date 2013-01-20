@@ -9,7 +9,7 @@ namespace IDservice.View
 {
     public class ResizeThumb : Thumb
     {
-        private const double MinSideSize = 50;
+        private const double MinSideSize = 37.7953;
 
         private RotateTransform _rotateTransform;
         private double _angle;
@@ -149,15 +149,47 @@ namespace IDservice.View
                     width = height * _aspectRatio;
                 }
             }
-            if (width < MinSideSize)
+            if (_constrainProportions)
             {
-                x = x + (width - MinSideSize);
-                width = MinSideSize;
+                if (_aspectRatio >= 1)
+                {
+                    if (width < MinSideSize*_aspectRatio)
+                    {
+                        x = x + (width - MinSideSize*_aspectRatio);
+                        width = MinSideSize*_aspectRatio;
+                    }
+                    if (height < MinSideSize)
+                    {
+                        y = y + (height - MinSideSize);
+                        height = MinSideSize;
+                    }
+                }
+                else
+                {
+                    if (width < MinSideSize)
+                    {
+                        x = x + (width - MinSideSize);
+                        width = MinSideSize;
+                    }
+                    if (height < MinSideSize/_aspectRatio)
+                    {
+                        y = y + (height - MinSideSize/_aspectRatio);
+                        height = MinSideSize/_aspectRatio;
+                    }
+                }
             }
-            if (height < MinSideSize/_aspectRatio)
+            else
             {
-                y = y + (height - MinSideSize/_aspectRatio);
-                height = MinSideSize/_aspectRatio;
+                if (width < MinSideSize)
+                {
+                    x = x + (width - MinSideSize);
+                    width = MinSideSize;
+                }
+                if (height < MinSideSize)
+                {
+                    y = y + (height - MinSideSize);
+                    height = MinSideSize;
+                }
             }
         }
 

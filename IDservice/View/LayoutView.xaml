@@ -1,11 +1,51 @@
 ﻿<UserControl x:Class="IDservice.View.LayoutView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             xmlns:converters="clr-namespace:IDservice.Model.Converters">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <converters:ImageConverter x:Key="IC"/>
+            <converters:IndependentUnitToCmConverter x:Key="u2cm"/>
+        </ResourceDictionary>
+    </UserControl.Resources>
     <Grid>
-            
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30*"/>
+            <ColumnDefinition Width="70*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Column="0" Background="DarkGray">
+            <Viewbox Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}">
+                <Canvas Background="YellowGreen" Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}">
+                    <Image Source="{Binding Background, Converter={StaticResource IC}}" Stretch="Fill" 
+                           Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}"/>
+                    <Grid Width="{Binding SelectedLayout.PhotoWidth, Mode=TwoWay}" Height="{Binding SelectedLayout.PhotoHeight, Mode=TwoWay}"
+                          Canvas.Left="{Binding SelectedLayout.PhotoX, Mode=TwoWay}" Canvas.Top="{Binding SelectedLayout.PhotoY, Mode=TwoWay}"
+                          Background="Teal">
+                        <Viewbox IsHitTestVisible="False">
+                            <Canvas Width="122" Height="127">
+                                <Path Width="58.2585" Height="63.6594" Canvas.Left="31.3731" Canvas.Top="1.5587" Stretch="Fill" Fill="#DDDDDD" Data="F1 M 89.3215,29.5476C 91.6481,46.9956 80.6281,62.8609 64.7135,64.9823C 48.7961,67.1036 34.0095,54.6769 31.6828,37.2303C 29.3575,19.7809 40.3761,3.9156 56.2921,1.79427C 72.2095,-0.325737 86.9961,12.0996 89.3215,29.5476 Z "/>
+                                <Path Width="115.336" Height="62.3316" Canvas.Left="4.23853" Canvas.Top="64.3351" Stretch="Fill" Fill="#DDDDDD" Data="F1 M 4.464,126.667C 4.464,126.667 3.8147e-006,67.952 30.7973,64.7253C 35.6667,63.6187 38.6867,65.2173 38.6867,65.2173C 38.6867,65.2173 50.3173,76 60.5027,76C 70.6867,76 85.7973,65.2173 85.7973,65.2173C 85.7973,65.2173 88.464,63.3333 93.3533,65.2173C 116.353,70.1107 113.687,82.7773 116.241,93.444C 117.304,104.037 119.575,126.667 119.575,126.667L 4.464,126.667 Z "/>
+                            </Canvas>
+                        </Viewbox>
+                    </Grid>
+                    <Grid Width="{Binding SelectedLayout.NameWidth}" Height="{Binding SelectedLayout.NameHeight}"
+                          Canvas.Left="{Binding SelectedLayout.NameX}" Canvas.Top="{Binding SelectedLayout.NameY}">
+                        <Viewbox>
+                            <TextBlock Text="Darion Sandford" Foreground="{Binding SelectedLayout.NameBrush}"/>
+                        </Viewbox>
+                    </Grid>
+                </Canvas>
+            </Viewbox>
+        </Grid>
+        <Grid Background="White" Width="500px" HorizontalAlignment="Left" Grid.Column="1" Margin="40,0,0,0">
+            <StackPanel Margin="20,30,20,40" Orientation="Horizontal">
+                <TextBlock Text="{Binding SelectedLayout.Width, Converter={StaticResource u2cm}, ConverterParameter=r, Mode=OneWay}" 
+                           FontSize="24" Foreground="#CCCCCC"/>
+                <TextBlock Text=" x " FontSize="24" Foreground="#CCCCCC"/>
+                <TextBlock Text="{Binding SelectedLayout.Height, Converter={StaticResource u2cm}, ConverterParameter=r, Mode=OneWay}" 
+                           FontSize="24" Foreground="#CCCCCC"/>
+                <TextBlock Text=" см" FontSize="24" Foreground="#CCCCCC"/>
+            </StackPanel>
+        </Grid>
     </Grid>
 </UserControl>

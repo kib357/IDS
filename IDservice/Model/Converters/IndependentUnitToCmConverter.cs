@@ -1,9 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 
 namespace IDservice.Model.Converters
@@ -15,6 +11,8 @@ namespace IDservice.Model.Converters
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var val = (double)value;
+            if (parameter != null)
+                return Math.Round(val/factor, 2);
             return val/factor;
         }
 
