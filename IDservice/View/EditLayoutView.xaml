@@ -98,7 +98,11 @@
                 </StackPanel>
                 <TextBlock Text="Цвет надписи" Style="{StaticResource OptionTitleStyle}"/>
                 <xctk:ColorPicker Width="100" HorizontalAlignment="Left" SelectedColor="{Binding SelectedLayout.NameColor}"/>
-            </StackPanel>
+                <TextBlock Text="Обратная сторона" Style="{StaticResource OptionTitleStyle}"/>
+                <Button Style="{StaticResource PushButtonStyle}" Content="Изменить..." Width="120" Height="30" Click="LoadOtherSideButton_CLick"/>
+                <Image Width="80" Height="80" HorizontalAlignment="Left" Stretch="Uniform" 
+                       Source="{Binding Otherside, Converter={StaticResource IC}}"/>
+            </StackPanel>            
         </Grid>
     </Grid>
 </UserControl>

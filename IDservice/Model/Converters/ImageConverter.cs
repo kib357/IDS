@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Globalization;
+using System.IO;
 using System.Windows.Data;
 using System.Windows.Media.Imaging;
 
@@ -9,8 +10,10 @@ namespace IDservice.Model.Converters
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            if (value == null) return null;
             try
             {
+                if (!File.Exists((string) value)) return null;
                 var objImage = new BitmapImage();
                 objImage.BeginInit();
                 objImage.CreateOptions = BitmapCreateOptions.IgnoreImageCache;

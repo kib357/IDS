@@ -4,6 +4,9 @@
              xmlns:converters="clr-namespace:IDservice.Model.Converters">
     <UserControl.Resources>
         <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../StandardStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
             <converters:ImageConverter x:Key="IC"/>
             <converters:IndependentUnitToCmConverter x:Key="u2cm"/>
         </ResourceDictionary>
@@ -38,13 +41,18 @@
             </Viewbox>
         </Grid>
         <Grid Background="White" Width="500px" HorizontalAlignment="Left" Grid.Column="1" Margin="40,0,0,0">
-            <StackPanel Margin="20,30,20,40" Orientation="Horizontal">
-                <TextBlock Text="{Binding SelectedLayout.Width, Converter={StaticResource u2cm}, ConverterParameter=r, Mode=OneWay}" 
+            <StackPanel Orientation="Vertical" Margin="20,30,20,40">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding SelectedLayout.Width, Converter={StaticResource u2cm}, ConverterParameter=r, Mode=OneWay}" 
                            FontSize="24" Foreground="#CCCCCC"/>
-                <TextBlock Text=" x " FontSize="24" Foreground="#CCCCCC"/>
-                <TextBlock Text="{Binding SelectedLayout.Height, Converter={StaticResource u2cm}, ConverterParameter=r, Mode=OneWay}" 
+                    <TextBlock Text=" x " FontSize="24" Foreground="#CCCCCC"/>
+                    <TextBlock Text="{Binding SelectedLayout.Height, Converter={StaticResource u2cm}, ConverterParameter=r, Mode=OneWay}" 
                            FontSize="24" Foreground="#CCCCCC"/>
-                <TextBlock Text=" см" FontSize="24" Foreground="#CCCCCC"/>
+                    <TextBlock Text=" см" FontSize="24" Foreground="#CCCCCC"/>
+                </StackPanel>
+                <TextBlock Text="Обратная сторона" Style="{StaticResource OptionTitleStyle}"/>
+                <Image Width="160" Height="160" HorizontalAlignment="Left" Stretch="Uniform" Margin="0,5,0,20" 
+                       Source="{Binding Otherside, Converter={StaticResource IC}}"/>
             </StackPanel>
         </Grid>
     </Grid>

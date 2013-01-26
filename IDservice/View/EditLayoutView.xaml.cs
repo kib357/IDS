@@ -36,6 +36,20 @@ namespace IDservice.View
             }
         }
 
+        private void LoadOtherSideButton_CLick(object sender, RoutedEventArgs e)
+        {
+            var dlg = new OpenFileDialog
+            {
+                Filter = "Images|*.jpg;*.jpeg;*.png;",
+                Title = "Выберите файл для фона макета"
+            };
+            if (dlg.ShowDialog() == true && DataContext is IdViewModel)
+            {
+                var vm = DataContext as IdViewModel;
+                vm.LoadNewLayoutOtherside(dlg.FileName);
+            }
+        }
+
         private void EditLayoutView_OnLoaded(object sender, RoutedEventArgs e)
         {
             myCanvas.PreviewMouseLeftButtonDown += CanvasOnPreviewMouseLeftButtonDown;

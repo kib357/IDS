@@ -144,6 +144,13 @@ namespace IDservice.ViewModel
             set { _background = value; RaisePropertyChanged("Background"); }
         }
 
+        private string _otherside;
+        public string Otherside
+        {
+            get { return _otherside; }
+            set { _otherside = value; RaisePropertyChanged("Otherside"); }
+        }
+
         private string _title;
         public string Title
         {
@@ -186,8 +193,10 @@ namespace IDservice.ViewModel
             {
                 _selectedLayout = value;
                 LoadLayoutBackground();
+                LoadLayoutOtherside();
                 RaisePropertyChanged("SelectedLayout");
                 RaisePropertyChanged("Background");
+                RaisePropertyChanged("Otherside");
             }
         }
 

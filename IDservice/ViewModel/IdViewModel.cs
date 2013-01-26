@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Printing;
+using System.Threading.Tasks;
 using System.Windows.Media.Imaging;
 using IDservice.Model;
 using Microsoft.Practices.Prism.Commands;
@@ -78,12 +79,32 @@ namespace IDservice.ViewModel
                     SelectedLayout = null;
                     break;
                 case AppModes.ViewLayout:
-                    Layouts.Remove(SelectedLayout);
+                    Task.Factory.StartNew(() => TryDeleteLayoutImages(), TaskCreationOptions.LongRunning);
+                    SelectedLayoutGroup.Layouts.Remove(SelectedLayout);
+                    Layouts = SelectedLayoutGroup.Layouts;
                     AppMode = AppModes.ViewLayoutGroup;
                     SelectedLayout = null;
                     break;
             }
             SaveConfiguration();
+        }
+
+        private bool TryDeleteLayoutImages()
+        {            
+            try
+            {
+                var backgroundPath = Path.Combine(_imagesPath, SelectedLayout.Id + "_background.jpg");
+                var othersidePath = Path.Combine(_imagesPath, SelectedLayout.Id + "_otherside.jpg");
+                if (File.Exists(backgroundPath))
+                    File.Delete(backgroundPath);
+                if (File.Exists(othersidePath))
+                    File.Delete(othersidePath);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }                    
         }
 
         private void Back()
@@ -219,11 +240,38 @@ namespace IDservice.ViewModel
             RaisePropertyChanged("SelectedLayout");
         }
 
+        public void LoadNewLayoutOtherside(string fileName)
+        {
+            Otherside = null;
+
+            var objImage = new BitmapImage();
+            objImage.BeginInit();
+            objImage.UriSource = new Uri(fileName, UriKind.RelativeOrAbsolute);
+            objImage.CacheOption = BitmapCacheOption.OnLoad;
+            objImage.EndInit();
+
+            var encoder = new JpegBitmapEncoder();
+            var photolocation = Path.Combine(_imagesPath, SelectedLayout.Id + "_otherside.jpg");  //file name 
+            encoder.Frames.Add(BitmapFrame.Create(objImage));
+            using (var filestream = new FileStream(photolocation, FileMode.Create))
+                encoder.Save(filestream);
+
+            LoadLayoutOtherside();
+            RaisePropertyChanged("SelectedLayout");
+        }
+
         private void LoadLayoutBackground()
         {
             if (SelectedLayout == null) return;
             var path = Path.Combine(_imagesPath, SelectedLayout.Id + "_background.jpg");
             Background = path;
+        }
+
+        private void LoadLayoutOtherside()
+        {
+            if (SelectedLayout == null) return;
+            var path = Path.Combine(_imagesPath, SelectedLayout.Id + "_otherside.jpg");
+            Otherside = path;
         }
     }
 }
