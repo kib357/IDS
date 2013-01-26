@@ -18,7 +18,7 @@ namespace IDservice.Model
             _photoX = 0;
             _photoY = 0;
             _nameWidth = 90;
-            _nameHeight = 30;
+            _nameHeight = 40;
             _nameX = 0;
             _nameY = 0;
             _nameColor = Color.FromRgb(0, 0, 0);

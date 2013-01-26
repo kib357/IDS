@@ -41,8 +41,11 @@ namespace IDservice.View
             myCanvas.PreviewMouseLeftButtonDown += CanvasOnPreviewMouseLeftButtonDown;
             myCanvas.MouseMove += CanvasMouseMove;
             myCanvas.MouseUp += CanvasMouseUp;
-            Application.Current.MainWindow.KeyDown += CanvasKeyDown;
-            Application.Current.MainWindow.KeyUp += CanvasKeyUp;
+            if (Application.Current != null)
+            {
+                Application.Current.MainWindow.KeyDown += CanvasKeyDown;
+                Application.Current.MainWindow.KeyUp += CanvasKeyUp;
+            }
         }
 
 

@@ -16,8 +16,8 @@
             <BooleanToVisibilityConverter x:Key="B2V"/>
         </ResourceDictionary>
     </Window.Resources>
-    <Grid>
-        <Grid Name="Main" Background="#F2F2F2">
+    <Grid Background="#F2F2F2">
+        <Grid Name="Main">
             <DockPanel Margin="0,40,0,0">
                 <Grid Height="120" DockPanel.Dock="Top" Visibility="{Binding Title, Converter={StaticResource StringToVisibilityConverter}}">
                     <Button Style="{DynamicResource BackButtonStyle}" Margin="40,19,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
@@ -31,17 +31,10 @@
                     <controls:EditLayoutView Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayout;EditLayout}"/>
                     <controls:EditLayoutGroupView Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayoutGroup;EditLayoutGroup}"/>
                     <controls:LayoutGroupsView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=LayoutGroups}"/>
-                    <controls:LayoutGroupView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup}"/>
-                    <controls:PrintView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=PrintCards}"/>
+                    <controls:LayoutGroupView  Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup}"/>                    
                 </Grid>
             </DockPanel>
-        </Grid>
-        <StackPanel Orientation="Horizontal" Name="AppButtons" HorizontalAlignment="Right" VerticalAlignment="Top">
-            <Button Style="{DynamicResource AppMinimizeButtonStyle}" IsTabStop="False"
-                    Command="{Binding ChangeWindowStateCommand}" CommandParameter="minimize"/>
-            <Button Style="{DynamicResource AppCloseButtonStyle}" IsTabStop="False"
-                    Command="{Binding ChangeWindowStateCommand}" CommandParameter="close"/>
-        </StackPanel>
+        </Grid>        
         <Grid Name="CommandBar" VerticalAlignment="Bottom" Height="100" Background="#d24726">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                 <Button Style="{DynamicResource AddAppBarButtonStyle}" Command="{Binding AddItemCommand}" CommandParameter="LayoutGroup"
@@ -56,14 +49,19 @@
                         Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=AddLayoutGroup;EditLayoutGroup;AddLayout;EditLayout}"/>
             </StackPanel>
         </Grid>
-        <!--<Grid Name="Area" Width="300" Height="200">
-            <Image Source="{Binding Background}"></Image>
+        <Grid Name="PrintControl" Margin="0,160,0,0"
+              Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=PrintCards}">
+            <controls:PrintView/>
         </Grid>
-        <Button Content="Print" Name="Print" Click="Print_OnClick"
-                Width="100" Height="20" HorizontalAlignment="Right" VerticalAlignment="Bottom"></Button>-->
         <Grid ZIndex="999" Visibility="{Binding ShowDeleteConfirmation, Converter={StaticResource B2V}}">
             <Grid MouseUp="CancelDeleteGrid_OnMouseUp" Background="#01FFFFFF"></Grid>
             <controls:DeleteConfirmation HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,110"/>            
         </Grid>
+        <StackPanel ZIndex="1000" Orientation="Horizontal" Name="AppButtons" HorizontalAlignment="Right" VerticalAlignment="Top">
+            <Button Style="{DynamicResource AppMinimizeButtonStyle}" IsTabStop="False"
+                    Command="{Binding ChangeWindowStateCommand}" CommandParameter="minimize"/>
+            <Button Style="{DynamicResource AppCloseButtonStyle}" IsTabStop="False"
+                    Command="{Binding ChangeWindowStateCommand}" CommandParameter="close"/>
+        </StackPanel>
     </Grid>    
 </Window>

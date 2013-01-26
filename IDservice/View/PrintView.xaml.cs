@@ -1,10 +1,7 @@
 ﻿using System.Printing;
 using System.Windows;
-//using System.Windows.Forms;
 using System.Windows.Forms;
 using IDservice.ViewModel;
-using Microsoft.Win32;
-using PrintDialog = System.Windows.Controls.PrintDialog;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace IDservice.View
@@ -25,7 +22,7 @@ namespace IDservice.View
             if (dlg.ShowDialog() == DialogResult.OK && DataContext is IdViewModel)
             {
                 var vm = DataContext as IdViewModel;
-                //vm.(dlg.SelectedPath);
+                vm.PhotoPath = dlg.SelectedPath;
             }
         }
 
@@ -36,6 +33,8 @@ namespace IDservice.View
             queue.CurrentJobSettings.Description = "idservice";
             var writer = PrintQueue.CreateXpsDocumentWriter(queue);
             //writer.Write(Area);
+            var left = queue.UserPrintTicket.PageMediaSize.Width / 2 - Area.ActualWidth / 2;
+            //Area.Margin = new Thickness((double)left, 0, 0, 0);
             var collator = writer.CreateVisualsCollator();
 
             collator.BeginBatchWrite();

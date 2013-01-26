@@ -17,8 +17,7 @@ namespace IDservice.ViewModel
         private static string _startupPath { get { return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName); } }
 
         private readonly string _configPath;
-        private readonly string _imagesPath;
-        private readonly string _photoPath;
+        private readonly string _imagesPath;        
 
         public DelegateCommand<string> ChangeWindowStateCommand { get; set; }
         public DelegateCommand BackCommand { get; set; }
@@ -34,8 +33,7 @@ namespace IDservice.ViewModel
         public IdViewModel()
         {
             _configPath = Path.Combine(new[] { _startupPath, @"Layouts.xml" });
-            _imagesPath = Path.Combine(new[] { _startupPath, @"images" });
-            _photoPath = Path.Combine(_startupPath, "photo");
+            _imagesPath = Path.Combine(new[] { _startupPath, @"images" });            
             Initialize();
             ChangeWindowStateCommand = new DelegateCommand<string>(ChangeWindowState);
             BackCommand = new DelegateCommand(Back);
@@ -54,13 +52,14 @@ namespace IDservice.ViewModel
             var sPrinter = LocalPrintServer.GetDefaultPrintQueue();
             SelectedPrinter = Printers.FirstOrDefault(p => p.Name == sPrinter.Name && p.FullName == sPrinter.FullName);
 
-            foreach (var path in Directory.GetFiles(_photoPath).Where(f => f.ToLower().EndsWith(".jpg")))
-                    ImageList.Add(path);
+            PhotoPath = Path.Combine(_startupPath, "photo");
         }
 
         private void PrintCards()
         {
             AppMode = AppModes.PrintCards;
+            if (Layouts != null)
+                SelectedLayout = Layouts.FirstOrDefault();
         }
 
         private void DeletePreview()

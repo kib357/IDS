@@ -1,77 +1,102 @@
 ﻿<UserControl x:Class="IDservice.View.PrintView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:converters="clr-namespace:IDservice.Model.Converters" xmlns:view="clr-namespace:IDservice.View">
+             xmlns:converters="clr-namespace:IDservice.Model.Converters" xmlns:view="clr-namespace:IDservice.View"
+             xmlns:xctk="clr-namespace:Xceed.Wpf.Toolkit;assembly=WPFToolkit.Extended">
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="../StandardStyles.xaml"/>
+                <ResourceDictionary Source="../ListView.xaml"/>
             </ResourceDictionary.MergedDictionaries>
             <converters:ImageConverter x:Key="IC"/>
             <converters:IndependentUnitToCmConverter x:Key="u2cm"/>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="20*"/>
-            <ColumnDefinition Width="30*"/>
-            <ColumnDefinition Width="50*"/>
-        </Grid.ColumnDefinitions>
-        <Grid Background="White" Grid.Column="0">
-            <ItemsControl ItemsSource="{Binding Layouts}" Margin="20,40">
-                <ItemsControl.ItemTemplate>
+    <DockPanel Background="#f2f8f9">
+        <Grid Width="300" DockPanel.Dock="Left">
+            <ListView ItemsSource="{Binding Layouts}" SelectedItem="{Binding SelectedLayout}" Margin="0,20,0,0"
+                      Style="{StaticResource EmptyListViewStyle}" ItemContainerStyle="{StaticResource EmptyListViewItemContainer}">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
                     <DataTemplate>
-                        <Button Content="{Binding Name}" Style="{StaticResource ItemButtonStyle}"
-                            Command="{Binding DataContext.SelectItemCommand, RelativeSource={RelativeSource AncestorType=view:PrintView}}"
-                            CommandParameter="{Binding .}"/>
+                        <TextBlock Text="{Binding Name}" FontSize="24" FontFamily="Segoe UI Light"
+                                   Margin="20,5,0,5" Width="260" TextTrimming="WordEllipsis" />
                     </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ListView.ItemTemplate>
+            </ListView>
         </Grid>
-        <Grid Grid.Column="1" Background="DarkGray" Margin="40,0,0,0">
-            <Viewbox Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}">
-                <Canvas Background="YellowGreen" Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}" Name="Area">
-                    <Image Source="{Binding Background, Converter={StaticResource IC}}" Stretch="Fill" 
+        <Grid Background="#cae6ea">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40*"/>
+                <ColumnDefinition Width="60*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid Margin="40">
+                    <Viewbox Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}">
+                        <Grid Name="Area" Width="{Binding PageWidth}" Height="{Binding PageHeight}" Background="White">
+                            <Canvas Background="YellowGreen" Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}" Name="Layout"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Image Source="{Binding Background, Converter={StaticResource IC}}" Stretch="Fill" 
                            Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}"/>
-                    <Grid Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}"
+                                <Grid Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}"
                           Canvas.Left="{Binding SelectedLayout.PhotoX}" Canvas.Top="{Binding SelectedLayout.PhotoY}">
-                        <Image Source="{Binding Photo}" Stretch="Uniform" 
+                                    <Image Source="{Binding Photo, Converter={StaticResource IC}}" Stretch="Uniform" 
                                Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}" />
-                    </Grid>
-                    <Grid Width="{Binding SelectedLayout.NameWidth}" Height="{Binding SelectedLayout.NameHeight}"
+                                </Grid>
+                                <Grid Width="{Binding SelectedLayout.NameWidth}" Height="{Binding SelectedLayout.NameHeight}"
                           Canvas.Left="{Binding SelectedLayout.NameX}" Canvas.Top="{Binding SelectedLayout.NameY}">
-                        <Viewbox>
-                            <TextBlock Text="{Binding CardUserName}" Foreground="{Binding SelectedLayout.NameBrush}"/>
-                        </Viewbox>
-                    </Grid>
-                </Canvas>
-            </Viewbox>
-        </Grid>
-        <Grid Background="White" Width="500px" HorizontalAlignment="Left" Grid.Column="2" Margin="40,0,0,0">
-            <StackPanel Margin="20,30,20,40">
-                <TextBlock Text="Имя" Style="{StaticResource OptionTitleStyle}"/>
-                <TextBox Text="{Binding CardUserName, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                <TextBlock Text="Фото" Style="{StaticResource OptionTitleStyle}"/>                
-                <Button Style="{StaticResource PushButtonStyle}" Content="Выбрать папку..." Width="160" Height="30" Click="SelectFolderButton_Click"></Button>
-                <TextBlock Text="{Binding ImagesPath}" />
-                <ListView ItemsSource="{Binding ImageList}" SelectedItem="{Binding Photo}">
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel Orientation="Horizontal"/>
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Image Width="100" Height="200" Source="{Binding ., Converter={StaticResource IC}}"></Image>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
-                </ListView>
-                <TextBlock Text="Принтер" Style="{StaticResource OptionTitleStyle}"/>
-                <ComboBox ItemsSource="{Binding Printers}" SelectedValue="{Binding SelectedPrinter}" 
+                                    <Viewbox>
+                                        <TextBlock Text="{Binding CardUserName}" Foreground="{Binding SelectedLayout.NameBrush}"/>
+                                    </Viewbox>
+                                </Grid>
+                            </Canvas>
+                        </Grid>
+                    </Viewbox>
+                </Grid>
+            </Grid>
+            <Grid HorizontalAlignment="Left" Grid.Column="1">
+                <StackPanel Margin="20,30,20,40">
+                    <TextBlock Text="Имя" Style="{StaticResource OptionTitleStyle}"/>
+                    <TextBox Text="{Binding CardUserName, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    <TextBlock Text="Фото" Style="{StaticResource OptionTitleStyle}"/>
+                    <Button Style="{StaticResource PushButtonStyle}" Content="Выбрать папку..." Width="160" Height="30" Click="SelectFolderButton_Click"></Button>
+                    <TextBlock Text="{Binding ImagesPath}" />
+                    <ListView ItemsSource="{Binding ImageList}" SelectedItem="{Binding Photo}">
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Image Width="100" Height="200" Source="{Binding ., Converter={StaticResource IC}}"></Image>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                    <TextBlock Text="Принтер" Style="{StaticResource OptionTitleStyle}"/>
+                    <ComboBox ItemsSource="{Binding Printers}" SelectedValue="{Binding SelectedPrinter}" 
                           DisplayMemberPath="Name"
                           Width="300" HorizontalAlignment="Left"/>
-                <Button Style="{StaticResource PushButtonStyle}" Content="Печать" Width="160" Height="30" Click="PrintButton_Click" Margin="0,20,0,0"/>
-            </StackPanel>
+                    <CheckBox IsChecked="{Binding PrintBackground}" Content="печатать фоновое изображение" Margin="0,5,0,0"/>
+                    <CheckBox IsChecked="{Binding PrintTwoSides}" Content="двусторонняя печать"
+                              IsEnabled="{Binding CanPrintTwoSides}" Margin="0,5,0,0"/>
+                    <TextBlock Text="Отступ от центра (см)" Style="{StaticResource OptionTitleStyle}"/>
+                    <StackPanel Orientation="Horizontal">
+                        <xctk:DoubleUpDown Value="{Binding PrintMarginX, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Increment="0.1"
+                                       HorizontalAlignment="Left"/>
+                        <xctk:DoubleUpDown Value="{Binding PrintMarginY, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 
+                                       FormatString="F2" Increment="0.1"
+                                       HorizontalAlignment="Left" Margin="20,0,0,0"/>
+                    </StackPanel>
+                    <Button Style="{StaticResource PushButtonStyle}" Content="Печать" Width="160" Height="30" Click="PrintButton_Click" Margin="0,20,0,0"/>
+                </StackPanel>
+            </Grid>
         </Grid>
-    </Grid>
+    </DockPanel>
 </UserControl>

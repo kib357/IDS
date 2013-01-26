@@ -5,11 +5,14 @@ using System.Windows;
 using System.Xml;
 using System.Xml.Serialization;
 using IDservice.Model;
+using Nini.Config;
 
 namespace IDservice.ViewModel
 {
     public partial class IdViewModel
     {
+        private XmlConfigSource _configSource;
+
         private void Initialize()
         {
             CheckImageFolderExists();

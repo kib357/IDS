@@ -1,5 +1,9 @@
-﻿using System.Collections.ObjectModel;
+﻿using System;
+using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 using System.Printing;
+using System.Windows;
 using IDservice.Model;
 
 namespace IDservice.ViewModel
@@ -50,8 +54,24 @@ namespace IDservice.ViewModel
         public PrintQueue SelectedPrinter
         {
             get { return _selectedPrinter; }
-            set { _selectedPrinter = value; RaisePropertyChanged("SelectedPrinter"); }
+            set
+            {
+                _selectedPrinter = value;
+                if (_selectedPrinter != null && _selectedPrinter.UserPrintTicket != null)
+                {
+                    if (_selectedPrinter.UserPrintTicket.PageMediaSize.Width != null)
+                        PageWidth = (double) _selectedPrinter.UserPrintTicket.PageMediaSize.Width;
+                    if (_selectedPrinter.UserPrintTicket.PageMediaSize.Height != null)
+                        PageHeight = (double) _selectedPrinter.UserPrintTicket.PageMediaSize.Height;
+                    RaisePropertyChanged("PageWidth");
+                    RaisePropertyChanged("PageHeight");
+                }
+                RaisePropertyChanged("SelectedPrinter");                
+            }
         }
+
+        public double PageWidth { get; set; }
+        public double PageHeight { get; set; }
 
         private PrintQueueCollection _printers;
         public PrintQueueCollection Printers
@@ -65,6 +85,42 @@ namespace IDservice.ViewModel
         {
             get { return _cardUserName; }
             set { _cardUserName = value; RaisePropertyChanged("CardUserName"); }
+        }
+
+        private FileSystemWatcher _watcher;
+        private string _photoPath;
+        public string PhotoPath
+        {
+            get { return _photoPath; }
+            set
+            {
+                _photoPath = value;
+                LoadImages();
+                _watcher = new FileSystemWatcher(_photoPath);
+                _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime | NotifyFilters.FileName;
+                // Add event handlers.
+                _watcher.Created += OnChanged;
+                _watcher.Deleted += OnChanged;
+                // Begin watching.
+                _watcher.EnableRaisingEvents = true;
+            }
+        }
+
+        private void OnChanged(object sender, FileSystemEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(LoadImages));
+        }
+
+        private void LoadImages()
+        {
+            if (!Directory.Exists(_photoPath)) return;
+            ImageList.Clear();
+            var allImageFiles = Directory.GetFiles(_photoPath).
+                                          Select(s => new FileInfo(s)).
+                                          Where(f => f.Extension.ToLower() == ".jpeg" || f.Extension.ToLower() == ".jpg").
+                                          OrderByDescending(x => x.LastWriteTime);
+            foreach (var file in allImageFiles)
+                ImageList.Add(file.ToString());
         }
 
         private ObservableCollection<string> _imageList = new ObservableCollection<string>();
