@@ -38,23 +38,25 @@
             <Grid Grid.Column="0">
                 <Grid Margin="40">
                     <Viewbox Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}">
-                        <Grid Name="Area" Width="{Binding PageWidth}" Height="{Binding PageHeight}" Background="White">
-                            <Canvas Background="YellowGreen" Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}" Name="Layout"
-                        HorizontalAlignment="Center" VerticalAlignment="Center">
-                                <Image Source="{Binding Background, Converter={StaticResource IC}}" Stretch="Fill" 
-                           Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}"/>
-                                <Grid Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}"
-                          Canvas.Left="{Binding SelectedLayout.PhotoX}" Canvas.Top="{Binding SelectedLayout.PhotoY}">
-                                    <Image Source="{Binding Photo, Converter={StaticResource IC}}" Stretch="Uniform" 
-                               Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}" />
-                                </Grid>
-                                <Grid Width="{Binding SelectedLayout.NameWidth}" Height="{Binding SelectedLayout.NameHeight}"
-                          Canvas.Left="{Binding SelectedLayout.NameX}" Canvas.Top="{Binding SelectedLayout.NameY}">
-                                    <Viewbox>
-                                        <TextBlock Text="{Binding CardUserName}" Foreground="{Binding SelectedLayout.NameBrush}"/>
-                                    </Viewbox>
-                                </Grid>
-                            </Canvas>
+                        <Grid Background="White" Width="{Binding PageWidth}" Height="{Binding PageHeight}">
+                            <Grid Name="Area" Width="{Binding PageWidth}" Height="{Binding PageHeight}">
+                                <Canvas Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}" Name="Layout"
+                                        HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{Binding PrintMargin}">
+                                    <Image Source="{Binding Background, Converter={StaticResource IC}}" Stretch="Fill" 
+                                           Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}" Name="BackgroundImage" />
+                                    <Grid Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}"
+                                          Canvas.Left="{Binding SelectedLayout.PhotoX}" Canvas.Top="{Binding SelectedLayout.PhotoY}">
+                                        <Image Source="{Binding Photo, Converter={StaticResource IC}}" Stretch="Uniform"
+                                               Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}" />
+                                    </Grid>
+                                    <Grid Width="{Binding SelectedLayout.NameWidth}" Height="{Binding SelectedLayout.NameHeight}"
+                                          Canvas.Left="{Binding SelectedLayout.NameX}" Canvas.Top="{Binding SelectedLayout.NameY}">
+                                        <Viewbox>
+                                            <TextBlock Text="{Binding CardUserName}" Foreground="{Binding SelectedLayout.NameBrush}"/>
+                                        </Viewbox>
+                                    </Grid>
+                                </Canvas>
+                            </Grid>
                         </Grid>
                     </Viewbox>
                 </Grid>
@@ -82,9 +84,10 @@
                     <ComboBox ItemsSource="{Binding Printers}" SelectedValue="{Binding SelectedPrinter}" 
                           DisplayMemberPath="Name"
                           Width="300" HorizontalAlignment="Left"/>
-                    <CheckBox IsChecked="{Binding PrintBackground}" Content="печатать фоновое изображение" Margin="0,5,0,0"/>
                     <CheckBox IsChecked="{Binding PrintTwoSides}" Content="двусторонняя печать"
                               IsEnabled="{Binding CanPrintTwoSides}" Margin="0,5,0,0"/>
+                    <CheckBox IsChecked="{Binding PrintBackground}" Content="печатать фоновое изображение" Margin="0,5,0,0"/>
+                    <CheckBox IsChecked="{Binding PrintOtherside}" Content="печатать обратную сторону" Margin="0,5,0,0"/>
                     <TextBlock Text="Отступ от центра (см)" Style="{StaticResource OptionTitleStyle}"/>
                     <StackPanel Orientation="Horizontal">
                         <xctk:DoubleUpDown Value="{Binding PrintMarginX, Converter={StaticResource u2cm}, UpdateSourceTrigger=PropertyChanged}" 

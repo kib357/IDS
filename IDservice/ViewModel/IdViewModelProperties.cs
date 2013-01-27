@@ -50,6 +50,7 @@ namespace IDservice.ViewModel
             }
         }
 
+        //Print settings
         private PrintQueue _selectedPrinter;
         public PrintQueue SelectedPrinter
         {
@@ -63,6 +64,10 @@ namespace IDservice.ViewModel
                         PageWidth = (double) _selectedPrinter.UserPrintTicket.PageMediaSize.Width;
                     if (_selectedPrinter.UserPrintTicket.PageMediaSize.Height != null)
                         PageHeight = (double) _selectedPrinter.UserPrintTicket.PageMediaSize.Height;
+                    var printcap = _selectedPrinter.GetPrintCapabilities();
+                    CanPrintTwoSides = printcap.DuplexingCapability.Contains(Duplexing.TwoSidedLongEdge);
+                    if (!CanPrintTwoSides) PrintTwoSides = false;
+                    RaisePropertyChanged("CanPrintTwoSides");
                     RaisePropertyChanged("PageWidth");
                     RaisePropertyChanged("PageHeight");
                 }
@@ -78,6 +83,60 @@ namespace IDservice.ViewModel
         {
             get { return _printers; }
             set { _printers = value; RaisePropertyChanged("Printers"); }
+        }
+
+        private bool _printBackground = true;
+        public bool PrintBackground
+        {
+            get { return _printBackground; }
+            set { _printBackground = value; RaisePropertyChanged("PrintBackground"); }
+        }
+
+        private bool _printTwoSides;
+        public bool PrintTwoSides
+        {
+            get { return _printTwoSides; }
+            set
+            {
+                _printTwoSides = value;
+                var deltaTicket = new PrintTicket();
+                deltaTicket.Duplexing = _printTwoSides ? Duplexing.TwoSidedLongEdge : Duplexing.OneSided;
+                var result = SelectedPrinter.MergeAndValidatePrintTicket(SelectedPrinter.UserPrintTicket, deltaTicket);
+                if (result.ValidatedPrintTicket.Duplexing == (_printTwoSides ? Duplexing.TwoSidedLongEdge : Duplexing.OneSided))
+                {
+                    SelectedPrinter.UserPrintTicket = result.ValidatedPrintTicket;
+                    SelectedPrinter.Commit();
+                }
+                RaisePropertyChanged("PrintTwoSides");
+            }
+        }
+
+        public bool CanPrintTwoSides { get; set; }
+
+        private bool _printOtherside = true;
+        public bool PrintOtherside
+        {
+            get { return _printOtherside; }
+            set { _printOtherside = value; RaisePropertyChanged("PrintOtherside"); }
+        }
+
+        private double _printMarginX;
+        public double PrintMarginX
+        {
+            get { return _printMarginX; }
+            set { _printMarginX = value; RaisePropertyChanged("PrintMarginX"); RaisePropertyChanged("PrintMargin"); }
+        }
+
+        private double _printMarginY;
+        public double PrintMarginY
+        {
+            get { return _printMarginY; }
+            set { _printMarginY = value; RaisePropertyChanged("PrintMarginY"); RaisePropertyChanged("PrintMargin"); }
+        }
+
+        public Thickness PrintMargin
+        {
+            get {return new Thickness(PrintMarginX, PrintMarginY,0,0);}
         }
 
         private string _cardUserName = "Фамилия Имя";

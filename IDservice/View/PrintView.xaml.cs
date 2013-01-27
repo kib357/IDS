@@ -29,6 +29,8 @@ namespace IDservice.View
         private void PrintButton_Click(object sender, RoutedEventArgs e)
         {
             var vm = DataContext as IdViewModel;
+            if (vm.PrintBackground == false)
+                BackgroundImage.Visibility = Visibility.Hidden;
             var queue = vm.SelectedPrinter;
             queue.CurrentJobSettings.Description = "idservice";
             var writer = PrintQueue.CreateXpsDocumentWriter(queue);
@@ -47,6 +49,8 @@ namespace IDservice.View
             //{
             //    pr.PrintVisual(Area, "grid");
             //}
+
+            BackgroundImage.Visibility = Visibility.Visible;
         }
     }
 }
