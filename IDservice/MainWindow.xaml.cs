@@ -248,7 +248,7 @@ namespace IDservice
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             var k = DataContext as IdViewModel;
-            k.Title = new Random().Next().ToString();
+            k.ModeTitle = new Random().Next().ToString();
         }
 
         private void CancelDeleteGrid_OnMouseUp(object sender, MouseButtonEventArgs e)

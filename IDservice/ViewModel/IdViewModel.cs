@@ -4,37 +4,28 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Printing;
-using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using IDservice.Model;
 using Microsoft.Practices.Prism.Commands;
 using Microsoft.Practices.Prism.ViewModel;
+using Nini.Config;
 
 namespace IDservice.ViewModel
 {
     public partial class IdViewModel : NotificationObject
     {
+        private XmlConfigSource _configSource;
         private AppModes _prevAppMode;
-        private static string _startupPath { get { return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName); } }
-
-        private readonly string _configPath;
-        private readonly string _imagesPath;        
-
-        public DelegateCommand<string> ChangeWindowStateCommand { get; set; }
-        public DelegateCommand BackCommand { get; set; }
-        public DelegateCommand AddItemCommand { get; set; }
-        public DelegateCommand EditItemCommand { get; set; }
-        public DelegateCommand DeleteItemCommand { get; set; }
-        public DelegateCommand DeletePreviewCommand { get; set; }
-        public DelegateCommand SaveItemCommand { get; set; }
-        public DelegateCommand<object> SelectItemCommand { get; set; }
-        public DelegateCommand CancelCommand { get; set; }
-        public DelegateCommand PrintCardsCommand { get; set; }
+        private FileSystemWatcher _watcher;
+        public static string StartupPath { get { return Path.GetDirectoryName(Process.GetCurrentProcess().MainModule.FileName); } }
+        public static readonly string ImagesPath = Path.Combine(new[] { StartupPath, @"images" });
+        private static readonly string ConfigPath = Path.Combine(new[] { StartupPath, @"Layouts.xml" });                      
 
         public IdViewModel()
         {
-            _configPath = Path.Combine(new[] { _startupPath, @"Layouts.xml" });
-            _imagesPath = Path.Combine(new[] { _startupPath, @"images" });            
+            //_configPath = Path.Combine(new[] { StartupPath, @"Layouts.xml" });
+            //_imagesPath
             Initialize();
             ChangeWindowStateCommand = new DelegateCommand<string>(ChangeWindowState);
             BackCommand = new DelegateCommand(Back);
@@ -53,177 +44,327 @@ namespace IDservice.ViewModel
             var sPrinter = LocalPrintServer.GetDefaultPrintQueue();
             SelectedPrinter = Printers.FirstOrDefault(p => p.Name == sPrinter.Name && p.FullName == sPrinter.FullName);
 
-            PhotoPath = Path.Combine(_startupPath, "photo");
+            CardUserPhotoPath = Path.Combine(StartupPath, "photo");
         }
 
-        private void PrintCards()
+        #region Device settings
+
+        public double PageWidth { get; set; }
+        public double PageHeight { get; set; }   
+
+        private PrintQueueCollection _printers;
+        public PrintQueueCollection Printers
         {
-            AppMode = AppModes.PrintCards;
-            if (Layouts != null)
-                SelectedLayout = Layouts.FirstOrDefault();
+            get { return _printers; }
+            set { _printers = value; RaisePropertyChanged("Printers"); }
         }
 
-        private void DeletePreview()
+        private PrintQueue _selectedPrinter;
+        public PrintQueue SelectedPrinter
         {
-            ShowDeleteConfirmation = true;
-        }
-
-        private void DeleteItem()
-        {
-            switch (AppMode)
+            get { return _selectedPrinter; }
+            set
             {
-                case AppModes.ViewLayoutGroup:
-                    LayoutGroups.Remove(SelectedLayoutGroup);
-                    AppMode = AppModes.LayoutGroups;
-                    SelectedLayoutGroup = null;
-                    SelectedLayout = null;
-                    break;
-                case AppModes.ViewLayout:
-                    Task.Factory.StartNew(() => TryDeleteLayoutImages(), TaskCreationOptions.LongRunning);
-                    SelectedLayoutGroup.Layouts.Remove(SelectedLayout);
-                    Layouts = SelectedLayoutGroup.Layouts;
-                    AppMode = AppModes.ViewLayoutGroup;
-                    SelectedLayout = null;
-                    break;
+                _selectedPrinter = value;
+                //TrySetPageSize();
+                if (_selectedPrinter != null && _selectedPrinter.UserPrintTicket != null)
+                {
+                    if (_selectedPrinter.UserPrintTicket.PageMediaSize.Width != null)
+                        PageWidth = (double)_selectedPrinter.UserPrintTicket.PageMediaSize.Width;
+                    if (_selectedPrinter.UserPrintTicket.PageMediaSize.Height != null)
+                        PageHeight = (double)_selectedPrinter.UserPrintTicket.PageMediaSize.Height;
+                    var printcap = _selectedPrinter.GetPrintCapabilities();
+                    CanPrintTwoSides = printcap.DuplexingCapability.Contains(Duplexing.TwoSidedLongEdge);
+                    if (!CanPrintTwoSides) PrintTwoSides = false;
+                    RaisePropertyChanged("CanPrintTwoSides");
+                    RaisePropertyChanged("PageWidth");
+                    RaisePropertyChanged("PageHeight");
+                }
+                RaisePropertyChanged("SelectedPrinter");
             }
-            SaveConfiguration();
         }
 
-        private bool TryDeleteLayoutImages()
+        public bool CanPrintTwoSides { get; set; }
+
+        private bool _printTwoSides;
+        public bool PrintTwoSides
+        {
+            get { return _printTwoSides; }
+            set
+            {
+                _printTwoSides = value;
+                var deltaTicket = new PrintTicket();
+                deltaTicket.Duplexing = _printTwoSides ? Duplexing.TwoSidedLongEdge : Duplexing.OneSided;
+                var result = SelectedPrinter.MergeAndValidatePrintTicket(SelectedPrinter.UserPrintTicket, deltaTicket);
+                if (result.ValidatedPrintTicket.Duplexing == (_printTwoSides ? Duplexing.TwoSidedLongEdge : Duplexing.OneSided))
+                {
+                    SelectedPrinter.UserPrintTicket = result.ValidatedPrintTicket;
+                    SelectedPrinter.Commit();
+                }
+                RaisePropertyChanged("PrintTwoSides");
+            }
+        }
+
+        private void TrySetPageSize()
+        {
+            if (SelectedLayout == null) return;
+            var size = new PageMediaSize(PageMediaSizeName.Unknown, SelectedLayout.Width, SelectedLayout.Height);
+            var deltaTicket = new PrintTicket();
+            deltaTicket.PageMediaSize = size;
+            SelectedPrinter.UserPrintTicket.PageMediaSize = size;
+            SelectedPrinter.UserPrintTicket.PageBorderless = PageBorderless.Borderless;
+            SelectedPrinter.Commit();
+            //var result = SelectedPrinter.MergeAndValidatePrintTicket(SelectedPrinter.UserPrintTicket, deltaTicket);
+            //if (result.ValidatedPrintTicket.PageMediaSize == size)
+            //{
+            //    SelectedPrinter.UserPrintTicket = result.ValidatedPrintTicket;
+            //    SelectedPrinter.Commit();
+            //}
+        }
+
+        #endregion
+
+        #region Card printing settings
+
+        private double _printMarginX;
+        public double PrintMarginX
+        {
+            get { return _printMarginX; }
+            set
+            {
+                _printMarginX = value;
+                SetConfigProperty("PrintMarginX", _printMarginX);
+                RaisePropertyChanged("PrintMarginX");
+                RaisePropertyChanged("PrintMargin");
+            }
+        }
+
+        private double _printMarginY;
+        public double PrintMarginY
+        {
+            get { return _printMarginY; }
+            set
+            {
+                _printMarginY = value;
+                SetConfigProperty("PrintMarginY", _printMarginY);
+                RaisePropertyChanged("PrintMarginY");
+                RaisePropertyChanged("PrintMargin");
+            }
+        }
+
+        public Thickness PrintMargin
+        {
+            get { return new Thickness(PrintMarginX, PrintMarginY, 0, 0); }
+        }        
+
+        private bool _printOtherside = true;
+        public bool PrintOtherside
+        {
+            get { return _printOtherside; }
+            set
+            {
+                _printOtherside = value;
+                SetConfigProperty("PrintOtherside", _printOtherside);
+                RaisePropertyChanged("PrintOtherside");
+            }
+        }
+
+        private bool _printBackground = true;
+        public bool PrintBackground
+        {
+            get { return _printBackground; }
+            set
+            {
+                _printBackground = value;
+                SetConfigProperty("PrintBackground", _printBackground);
+                RaisePropertyChanged("PrintBackground");
+            }
+        }
+
+        #endregion
+
+        #region CardUser
+
+        private string _cardUserPhoto;
+        public string CardUserPhoto
+        {
+            get { return _cardUserPhoto; }
+            set { _cardUserPhoto = value; RaisePropertyChanged("CardUserPhoto"); }
+        }
+
+        private ObservableCollection<string> _cardUserPhotoList = new ObservableCollection<string>();
+        public ObservableCollection<string> CardUserPhotoList
+        {
+            get { return _cardUserPhotoList; }
+            set { _cardUserPhotoList = value; RaisePropertyChanged("CardUserPhotoList"); }
+        }
+
+        private string _cardUserPhotoPath;
+        public string CardUserPhotoPath
+        {
+            get { return _cardUserPhotoPath; }
+            set
+            {
+                _cardUserPhotoPath = value;
+                SetConfigProperty("CardUserPhotoPath", _cardUserPhotoPath);
+                if (!Directory.Exists(_cardUserPhotoPath)) return;
+                LoadCardUserPhotos();
+                _watcher = new FileSystemWatcher(_cardUserPhotoPath);
+                _watcher.NotifyFilter = NotifyFilters.LastWrite | NotifyFilters.CreationTime | NotifyFilters.FileName;
+                _watcher.Created += OnCardUserPhotoPathChanged;
+                _watcher.Deleted += OnCardUserPhotoPathChanged;
+                _watcher.EnableRaisingEvents = true;
+            }
+        }
+
+        private void OnCardUserPhotoPathChanged(object sender, FileSystemEventArgs e)
+        {
+            Application.Current.Dispatcher.BeginInvoke(new Action(LoadCardUserPhotos));
+        }
+
+        private void LoadCardUserPhotos()
         {            
-            try
-            {
-                var backgroundPath = Path.Combine(_imagesPath, SelectedLayout.Id + "_background.jpg");
-                var othersidePath = Path.Combine(_imagesPath, SelectedLayout.Id + "_otherside.jpg");
-                if (File.Exists(backgroundPath))
-                    File.Delete(backgroundPath);
-                if (File.Exists(othersidePath))
-                    File.Delete(othersidePath);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }                    
+            CardUserPhotoList.Clear();
+            var allImageFiles = Directory.GetFiles(_cardUserPhotoPath).
+                                          Select(s => new FileInfo(s)).
+                                          Where(f => f.Extension.ToLower() == ".jpeg" || f.Extension.ToLower() == ".jpg").
+                                          OrderByDescending(x => x.LastWriteTime);
+            foreach (var file in allImageFiles)
+                CardUserPhotoList.Add(file.ToString());
         }
 
-        private void Back()
+        private string _cardUserName = "Фамилия Имя";
+        public string CardUserName
         {
-            switch (AppMode)
+            get { return _cardUserName; }
+            set
             {
-                case AppModes.ViewLayoutGroup:
-                    AppMode = AppModes.LayoutGroups;
-                    SelectedLayoutGroup = null;
-                    SelectedLayout = null;
-                    break;
-                case AppModes.ViewLayout:
-                    AppMode = AppModes.ViewLayoutGroup;
-                    SelectedLayout = null;
-                    break;
-                case AppModes.PrintCards:
-                    AppMode = AppModes.ViewLayoutGroup;
-                    SelectedLayout = null;
-                    break;
+                _cardUserName = value;
+                CardUserNameList = new ObservableCollection<string>(_cardUserName.Split(' '));
+                RaisePropertyChanged("CardUserName");
             }
         }
 
-        private void SelectItem(object item)
+        private ObservableCollection<string> _cardUserNameList = new ObservableCollection<string>("Фамилия Имя".Split(' '));
+        public ObservableCollection<string> CardUserNameList
         {
-            switch (AppMode)
+            get { return _cardUserNameList; }
+            set { _cardUserNameList = value; RaisePropertyChanged("CardUserNameList"); }
+        }
+
+        private bool _wrapCardUserName;
+        public bool WrapCardUserName
+        {
+            get { return _wrapCardUserName; }
+            set
             {
-                case AppModes.LayoutGroups:
-                    SelectedLayoutGroup = (LayoutGroup)item;
-                    AppMode = AppModes.ViewLayoutGroup;
-                    break;
-                case AppModes.ViewLayoutGroup:
-                    SelectedLayout = (Layout)item;
-                    AppMode = AppModes.ViewLayout;
-                    break;
-                case AppModes.PrintCards:
-                    SelectedLayout = (Layout)item;
-                    break;
+                _wrapCardUserName = value;
+                SetConfigProperty("WrapCardUserName", _wrapCardUserName);
+                RaisePropertyChanged("WrapCardUserName");
             }
         }
 
-        private void EditItem()
+        #endregion
+
+        #region Layout groups
+
+        private ObservableCollection<LayoutGroup> _layoutGroups = new ObservableCollection<LayoutGroup>();
+        public ObservableCollection<LayoutGroup> LayoutGroups
         {
-            switch (AppMode)
+            get { return _layoutGroups; }
+            set { _layoutGroups = value; RaisePropertyChanged("LayoutGroups"); }
+        }
+
+        private LayoutGroup _selectedLayoutGroup;
+        public LayoutGroup SelectedLayoutGroup
+        {
+            get { return _selectedLayoutGroup; }
+            set
             {
-                case AppModes.ViewLayoutGroup:
-                    SelectedLayoutGroup.BeginEdit();
-                    AppMode = AppModes.EditLayoutGroup;
-                    break;
-                case AppModes.ViewLayout:
-                    SelectedLayout.BeginEdit();
-                    AppMode = AppModes.EditLayout;
-                    break;
+                _selectedLayoutGroup = value;
+                if (_selectedLayoutGroup != null)
+                    Layouts = _selectedLayoutGroup.Layouts;
+                RaisePropertyChanged("SelectedLayoutGroup");
             }
         }
 
-        private void SaveItem()
+        private ObservableCollection<Layout> _layouts = new ObservableCollection<Layout>();
+        public ObservableCollection<Layout> Layouts
         {
-            switch (AppMode)
+            get { return _layouts; }
+            set { _layouts = value; RaisePropertyChanged("Layouts"); }
+        }
+
+        private Layout _selectedLayout;
+        public Layout SelectedLayout
+        {
+            get { return _selectedLayout; }
+            set { _selectedLayout = value; RaisePropertyChanged("SelectedLayout"); }
+        }
+
+        #endregion
+
+        #region App settings
+
+        private AppModes _appMode;
+        public AppModes AppMode
+        {
+            get { return _appMode; }
+            set
             {
-                case AppModes.AddLayoutGroup:
-                case AppModes.EditLayoutGroup:
-                    SelectedLayoutGroup.EndEdit();
-                    SaveLayoutGroup();
-                    break;
-                case AppModes.AddLayout:
-                case AppModes.EditLayout:
-                    SelectedLayout.EndEdit();
-                    SaveLayout();
-                    break;
-            }
-            SaveConfiguration();
-        }
-
-        private void SaveLayoutGroup()
-        {
-
-            var layoutGroup = LayoutGroups.FirstOrDefault(l => l.Id == SelectedLayoutGroup.Id);
-            if (layoutGroup == null)
-                LayoutGroups.Add(SelectedLayoutGroup);
-            AppMode = AppModes.ViewLayoutGroup;
-        }
-
-        private void SaveLayout()
-        {
-            var layout = SelectedLayoutGroup.Layouts.FirstOrDefault(l => l.Id == SelectedLayout.Id);
-            if (layout == null)
-                SelectedLayoutGroup.Layouts.Add(SelectedLayout);
-            Layouts = new ObservableCollection<Layout>(SelectedLayoutGroup.Layouts);
-            AppMode = AppModes.ViewLayout;
-        }
-
-        private void Cancel()
-        {
-            if (SelectedLayoutGroup != null)
-                SelectedLayoutGroup.CancelEdit();
-            if (SelectedLayout != null)
-                SelectedLayout.CancelEdit();
-            AppMode = _prevAppMode;
-        }
-
-        private void AddItem()
-        {
-            switch (AppMode)
-            {
-                case AppModes.LayoutGroups:
-                    SelectedLayoutGroup = new LayoutGroup();
-                    AppMode = AppModes.AddLayoutGroup;
-                    break;
-                case AppModes.ViewLayoutGroup:
-                    SelectedLayout = new Layout();
-                    AppMode = AppModes.AddLayout;
-                    break;
+                ShowDeleteConfirmation = false;
+                _prevAppMode = _appMode;
+                _appMode = value;
+                switch (_appMode)
+                {
+                    case AppModes.LayoutGroups:
+                        ModeTitle = "Мероприятия";
+                        break;
+                    case AppModes.ViewLayoutGroup:
+                        ModeTitle = SelectedLayoutGroup.Name;
+                        break;
+                    case AppModes.AddLayoutGroup:
+                        ModeTitle = "Добавление мероприятия";
+                        break;
+                    case AppModes.EditLayoutGroup:
+                        ModeTitle = "Изменение мероприятия";
+                        break;
+                    case AppModes.ViewLayout:
+                        ModeTitle = SelectedLayout.Name;
+                        break;
+                    case AppModes.AddLayout:
+                        ModeTitle = "Добавление макета";
+                        break;
+                    case AppModes.EditLayout:
+                        ModeTitle = "Изменение макета";
+                        break;
+                    case AppModes.PrintCards:
+                        ModeTitle = "Печать бейджей";
+                        break;
+                }
+                RaisePropertyChanged("AppMode");
             }
         }
 
-        public void LoadNewLayoutBackground(string fileName)
+        private string _modeTitle;
+        public string ModeTitle
         {
-            Background = null;
+            get { return _modeTitle; }
+            set { _modeTitle = value; RaisePropertyChanged("ModeTitle"); }
+        }
 
+        private bool _showDeleteConfirmation;
+        public bool ShowDeleteConfirmation
+        {
+            get { return _showDeleteConfirmation; }
+            set { _showDeleteConfirmation = value; RaisePropertyChanged("ShowDeleteConfirmation"); }
+        }
+
+        #endregion
+
+        public void LoadNewImage(string fileName, string saveName)
+        {
+            if (SelectedLayout == null) return;
             var objImage = new BitmapImage();
             objImage.BeginInit();
             objImage.UriSource = new Uri(fileName, UriKind.RelativeOrAbsolute);
@@ -231,47 +372,11 @@ namespace IDservice.ViewModel
             objImage.EndInit();
 
             var encoder = new JpegBitmapEncoder();
-            var photolocation = Path.Combine(_imagesPath, SelectedLayout.Id + "_background.jpg");  //file name 
+            var photolocation = Path.Combine(ImagesPath, SelectedLayout.Id + saveName);
             encoder.Frames.Add(BitmapFrame.Create(objImage));
             using (var filestream = new FileStream(photolocation, FileMode.Create))
                 encoder.Save(filestream);
-
-            LoadLayoutBackground();
             RaisePropertyChanged("SelectedLayout");
-        }
-
-        public void LoadNewLayoutOtherside(string fileName)
-        {
-            Otherside = null;
-
-            var objImage = new BitmapImage();
-            objImage.BeginInit();
-            objImage.UriSource = new Uri(fileName, UriKind.RelativeOrAbsolute);
-            objImage.CacheOption = BitmapCacheOption.OnLoad;
-            objImage.EndInit();
-
-            var encoder = new JpegBitmapEncoder();
-            var photolocation = Path.Combine(_imagesPath, SelectedLayout.Id + "_otherside.jpg");  //file name 
-            encoder.Frames.Add(BitmapFrame.Create(objImage));
-            using (var filestream = new FileStream(photolocation, FileMode.Create))
-                encoder.Save(filestream);
-
-            LoadLayoutOtherside();
-            RaisePropertyChanged("SelectedLayout");
-        }
-
-        private void LoadLayoutBackground()
-        {
-            if (SelectedLayout == null) return;
-            var path = Path.Combine(_imagesPath, SelectedLayout.Id + "_background.jpg");
-            Background = path;
-        }
-
-        private void LoadLayoutOtherside()
-        {
-            if (SelectedLayout == null) return;
-            var path = Path.Combine(_imagesPath, SelectedLayout.Id + "_otherside.jpg");
-            Otherside = path;
         }
     }
 }

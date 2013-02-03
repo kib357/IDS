@@ -94,11 +94,12 @@
     <Compile Include="Model\Converters\ImageConverter.cs" />
     <Compile Include="Model\Converters\IndependentUnitToCmConverter.cs" />
     <Compile Include="Model\Converters\ModeToVisibilityConverter.cs" />
+    <Compile Include="Model\Converters\MyBooleanToVisibilityConverter.cs" />
     <Compile Include="Model\Converters\StringToVisibilityConverter.cs" />
     <Compile Include="Model\IEditableItem.cs" />
     <Compile Include="ViewModel\IdViewModel.cs" />
-    <Compile Include="ViewModel\IdViewModelConfig.cs" />
-    <Compile Include="ViewModel\IdViewModelProperties.cs" />
+    <Compile Include="ViewModel\IdViewModelCommands.cs" />
+    <Compile Include="ViewModel\IdViewModelInitialization.cs" />
     <Compile Include="View\DeleteConfirmation.xaml.cs">
       <DependentUpon>DeleteConfirmation.xaml</DependentUpon>
     </Compile>

@@ -9,6 +9,7 @@
                 <ResourceDictionary Source="../StandardStyles.xaml"/>
                 <ResourceDictionary Source="../ListView.xaml"/>
             </ResourceDictionary.MergedDictionaries>
+            <converters:MyBooleanToVisibilityConverter x:Key="b2v"/>
             <converters:ImageConverter x:Key="IC"/>
             <converters:IndependentUnitToCmConverter x:Key="u2cm"/>
         </ResourceDictionary>
@@ -42,17 +43,26 @@
                             <Grid Name="Area" Width="{Binding PageWidth}" Height="{Binding PageHeight}">
                                 <Canvas Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}" Name="Layout"
                                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{Binding PrintMargin}">
-                                    <Image Source="{Binding Background, Converter={StaticResource IC}}" Stretch="Fill" 
+                                    <Image Source="{Binding SelectedLayout.Background, Converter={StaticResource IC}}" Stretch="Fill" 
                                            Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}" Name="BackgroundImage" />
-                                    <Grid Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}"
-                                          Canvas.Left="{Binding SelectedLayout.PhotoX}" Canvas.Top="{Binding SelectedLayout.PhotoY}">
-                                        <Image Source="{Binding Photo, Converter={StaticResource IC}}" Stretch="Uniform"
-                                               Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}" />
-                                    </Grid>
+                                    <Image Source="{Binding CardUserPhoto, Converter={StaticResource IC}}" Stretch="Uniform"
+                                               Width="{Binding SelectedLayout.PhotoWidth}" Height="{Binding SelectedLayout.PhotoHeight}" 
+                                               Canvas.Left="{Binding SelectedLayout.PhotoX}" Canvas.Top="{Binding SelectedLayout.PhotoY}"/>
                                     <Grid Width="{Binding SelectedLayout.NameWidth}" Height="{Binding SelectedLayout.NameHeight}"
                                           Canvas.Left="{Binding SelectedLayout.NameX}" Canvas.Top="{Binding SelectedLayout.NameY}">
-                                        <Viewbox>
-                                            <TextBlock Text="{Binding CardUserName}" Foreground="{Binding SelectedLayout.NameBrush}"/>
+                                        <Viewbox Visibility="{Binding WrapCardUserName, Converter={StaticResource b2v}, ConverterParameter=true}">
+                                            <TextBlock Text="{Binding CardUserName}" Foreground="{Binding SelectedLayout.NameBrush}" TextWrapping="Wrap"/>
+                                        </Viewbox>
+                                        <Viewbox Visibility="{Binding WrapCardUserName, Converter={StaticResource b2v}, ConverterParameter=false}">
+                                            <StackPanel>
+                                                <ItemsControl ItemsSource="{Binding CardUserNameList}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding .}" Foreground="{Binding SelectedLayout.NameBrush}" TextWrapping="Wrap"/>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </StackPanel>
                                         </Viewbox>
                                     </Grid>
                                 </Canvas>
@@ -65,10 +75,11 @@
                 <StackPanel Margin="20,30,20,40">
                     <TextBlock Text="Имя" Style="{StaticResource OptionTitleStyle}"/>
                     <TextBox Text="{Binding CardUserName, UpdateSourceTrigger=PropertyChanged}"></TextBox>
+                    <CheckBox IsChecked="{Binding WrapCardUserName}" Content="перенос слов" Margin="0,5,0,0"/>
                     <TextBlock Text="Фото" Style="{StaticResource OptionTitleStyle}"/>
                     <Button Style="{StaticResource PushButtonStyle}" Content="Выбрать папку..." Width="160" Height="30" Click="SelectFolderButton_Click"></Button>
-                    <TextBlock Text="{Binding ImagesPath}" />
-                    <ListView ItemsSource="{Binding ImageList}" SelectedItem="{Binding Photo}">
+                    <TextBlock Text="{Binding CardUserPhotoPath}" />
+                    <ListView ItemsSource="{Binding CardUserPhotoList}" SelectedItem="{Binding CardUserPhoto}">
                         <ListView.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <VirtualizingStackPanel Orientation="Horizontal"/>
@@ -98,6 +109,7 @@
                                        HorizontalAlignment="Left" Margin="20,0,0,0"/>
                     </StackPanel>
                     <Button Style="{StaticResource PushButtonStyle}" Content="Печать" Width="160" Height="30" Click="PrintButton_Click" Margin="0,20,0,0"/>
+                    <Button Style="{StaticResource PushButtonStyle}" Content="Печать" Width="160" Height="30" Click="Print_OnClick" Margin="0,20,0,0"/>
                 </StackPanel>
             </Grid>
         </Grid>

@@ -19,7 +19,7 @@
         <Grid Grid.Column="0" Background="DarkGray">
             <Viewbox Width="{Binding ActualWidth, RelativeSource={RelativeSource AncestorType=Grid}}">
                 <Canvas Background="YellowGreen" Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}">
-                    <Image Source="{Binding Background, Converter={StaticResource IC}}" Stretch="Fill" 
+                    <Image Source="{Binding SelectedLayout.Background, Converter={StaticResource IC}}" Stretch="Fill" 
                            Width="{Binding SelectedLayout.Width}" Height="{Binding SelectedLayout.Height}"/>
                     <Grid Width="{Binding SelectedLayout.PhotoWidth, Mode=TwoWay}" Height="{Binding SelectedLayout.PhotoHeight, Mode=TwoWay}"
                           Canvas.Left="{Binding SelectedLayout.PhotoX, Mode=TwoWay}" Canvas.Top="{Binding SelectedLayout.PhotoY, Mode=TwoWay}"
@@ -52,7 +52,7 @@
                 </StackPanel>
                 <TextBlock Text="Обратная сторона" Style="{StaticResource OptionTitleStyle}"/>
                 <Image Width="160" Height="160" HorizontalAlignment="Left" Stretch="Uniform" Margin="0,5,0,20" 
-                       Source="{Binding Otherside, Converter={StaticResource IC}}"/>
+                       Source="{Binding SelectedLayout.Otherside, Converter={StaticResource IC}}"/>
             </StackPanel>
         </Grid>
     </Grid>

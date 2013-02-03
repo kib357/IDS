@@ -19,11 +19,11 @@
     <Grid Background="#F2F2F2">
         <Grid Name="Main">
             <DockPanel Margin="0,40,0,0">
-                <Grid Height="120" DockPanel.Dock="Top" Visibility="{Binding Title, Converter={StaticResource StringToVisibilityConverter}}">
+                <Grid Height="120" DockPanel.Dock="Top" Visibility="{Binding ModeTitle, Converter={StaticResource StringToVisibilityConverter}}">
                     <Button Style="{DynamicResource BackButtonStyle}" Margin="40,19,0,0" HorizontalAlignment="Left" VerticalAlignment="Top"
                             Visibility="{Binding AppMode, Converter={StaticResource M2V}, ConverterParameter=ViewLayoutGroup;ViewLayout;PrintCards}"
                             Command="{Binding BackCommand}"/>
-                    <TextBlock Text="{Binding Title}" FontFamily="Segoe UI Light" FontSize="56" Margin="116,0,0,0"/>
+                    <TextBlock Text="{Binding ModeTitle}" FontFamily="Segoe UI Light" FontSize="56" Margin="116,0,0,0"/>
                 </Grid>
                 <Grid Height="120" DockPanel.Dock="Bottom"/>
                 <Grid Margin="120,0,0,0">

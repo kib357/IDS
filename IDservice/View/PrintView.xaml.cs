@@ -1,7 +1,9 @@
 ﻿using System.Printing;
 using System.Windows;
+//using System.Windows.Forms;
 using System.Windows.Forms;
 using IDservice.ViewModel;
+using PrintDialog = System.Windows.Controls.PrintDialog;
 using UserControl = System.Windows.Controls.UserControl;
 
 namespace IDservice.View
@@ -22,7 +24,16 @@ namespace IDservice.View
             if (dlg.ShowDialog() == DialogResult.OK && DataContext is IdViewModel)
             {
                 var vm = DataContext as IdViewModel;
-                vm.PhotoPath = dlg.SelectedPath;
+                vm.CardUserPhotoPath = dlg.SelectedPath;
+            }
+        }
+
+        private void Print_OnClick(object sender, RoutedEventArgs e)
+        {
+            var pr = new PrintDialog();
+            if (pr.ShowDialog() == true)
+            {
+                pr.PrintVisual(Area, "grid");
             }
         }
 

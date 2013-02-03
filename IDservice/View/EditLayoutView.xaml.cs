@@ -32,7 +32,7 @@ namespace IDservice.View
             if (dlg.ShowDialog() == true && DataContext is IdViewModel)
             {
                 var vm = DataContext as IdViewModel;
-                vm.LoadNewLayoutBackground(dlg.FileName);
+                vm.LoadNewImage(dlg.FileName, "_background.jpg");
             }
         }
 
@@ -46,7 +46,7 @@ namespace IDservice.View
             if (dlg.ShowDialog() == true && DataContext is IdViewModel)
             {
                 var vm = DataContext as IdViewModel;
-                vm.LoadNewLayoutOtherside(dlg.FileName);
+                vm.LoadNewImage(dlg.FileName, "_otherside.jpg");
             }
         }
 

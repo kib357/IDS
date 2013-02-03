@@ -1,6 +1,8 @@
 ﻿using System;
+using System.IO;
 using System.Windows.Media;
 using System.Xml.Serialization;
+using IDservice.ViewModel;
 using Microsoft.Practices.Prism.ViewModel;
 
 namespace IDservice.Model
@@ -158,6 +160,9 @@ namespace IDservice.Model
 
             }
         }
+
+        public string Background { get { return Path.Combine(IdViewModel.ImagesPath, Id + "_background.jpg"); } }
+        public string Otherside { get { return Path.Combine(IdViewModel.ImagesPath, Id + "_otherside.jpg"); } }
 
         public Color NameColor
         {
