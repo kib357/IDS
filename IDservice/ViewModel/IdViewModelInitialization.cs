@@ -33,27 +33,12 @@ namespace IDservice.ViewModel
 
         private void InitializeFields()
         {
-            if (!_configSource.Configs["Printing"].Contains("PrintMarginX"))
-                _configSource.Configs["Printing"].Set("PrintMarginX", PrintMarginX);
-            PrintMarginX = _configSource.Configs["Printing"].GetDouble("PrintMarginX");
-            if (!_configSource.Configs["Printing"].Contains("PrintMarginY"))
-                _configSource.Configs["Printing"].Set("PrintMarginY", PrintMarginY);
-            PrintMarginY = _configSource.Configs["Printing"].GetDouble("PrintMarginY");
-            if (!_configSource.Configs["Printing"].Contains("PrintOtherside"))
-                _configSource.Configs["Printing"].Set("PrintOtherside", PrintOtherside);
-            PrintOtherside = _configSource.Configs["Printing"].GetBoolean("PrintOtherside");
-            if (!_configSource.Configs["Printing"].Contains("PrintBackground"))
-                _configSource.Configs["Printing"].Set("PrintBackground", PrintBackground);
-            PrintBackground = _configSource.Configs["Printing"].GetBoolean("PrintBackground");
-            if (!_configSource.Configs["Printing"].Contains("CardUserPhotoPath"))
-                _configSource.Configs["Printing"].Set("CardUserPhotoPath", CardUserPhotoPath ?? "");
-            CardUserPhotoPath = _configSource.Configs["Printing"].Get("CardUserPhotoPath");
-            if (!_configSource.Configs["Printing"].Contains("WrapCardUserName"))
-                _configSource.Configs["Printing"].Set("WrapCardUserName", WrapCardUserName);
-            WrapCardUserName = _configSource.Configs["Printing"].GetBoolean("WrapCardUserName");
+            if (!_configSource.Configs["Main"].Contains("CardUserPhotoPath"))
+                _configSource.Configs["Main"].Set("CardUserPhotoPath", CardUserPhotoPath ?? "");
+            CardUserPhotoPath = _configSource.Configs["Main"].Get("CardUserPhotoPath");
         }
 
-        private void SetConfigProperty(string propertyName, object value, string section = "Printing")
+        private void SetConfigProperty(string propertyName, object value, string section = "Main")
         {
             _configSource.Configs[section].Set(propertyName, value);
         }
@@ -61,7 +46,7 @@ namespace IDservice.ViewModel
         private void WriteDefaultConfig()
         {
             _configSource = new XmlConfigSource();
-            _configSource.AddConfig("Printing");
+            _configSource.AddConfig("Main");
             try
             {
                 _configSource.Save(Path.Combine(StartupPath, "Config.xml"));
@@ -123,20 +108,23 @@ namespace IDservice.ViewModel
             SaveConfiguration();
         }
 
-        private void SaveConfiguration()
+        private void SaveConfiguration(object state = null)
         {
-            try
+            lock (SyncRoot)
             {
-                var serializer = new XmlSerializer(typeof(ObservableCollection<LayoutGroup>));
-                using (var stream = File.Create(ConfigPath))
+                try
                 {
-                    serializer.Serialize(stream, LayoutGroups);
+                    var serializer = new XmlSerializer(typeof (ObservableCollection<LayoutGroup>));
+                    using (var stream = File.Create(ConfigPath))
+                    {
+                        serializer.Serialize(stream, LayoutGroups);
+                    }
                 }
-            }
-            catch (Exception ex)
-            {
-                throw new Exception("Save error");
-                //todo: show exception to user and close application
+                catch (Exception ex)
+                {
+                    throw new Exception("Save error");
+                    //todo: show exception to user and close application
+                }
             }
         }
 

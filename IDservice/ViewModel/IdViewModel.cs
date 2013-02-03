@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Printing;
+using System.Threading;
 using System.Windows;
 using System.Windows.Media.Imaging;
 using IDservice.Model;
@@ -15,6 +16,7 @@ namespace IDservice.ViewModel
 {
     public partial class IdViewModel : NotificationObject
     {
+        private static object SyncRoot = new object();
         private XmlConfigSource _configSource;
         private AppModes _prevAppMode;
         private FileSystemWatcher _watcher;
@@ -39,12 +41,19 @@ namespace IDservice.ViewModel
             PrintCardsCommand = new DelegateCommand(PrintCards);
             AppMode = AppModes.LayoutGroups;
 
-            var printServer = new LocalPrintServer();            
-            Printers = printServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections });
-            var sPrinter = LocalPrintServer.GetDefaultPrintQueue();
-            SelectedPrinter = Printers.FirstOrDefault(p => p.Name == sPrinter.Name && p.FullName == sPrinter.FullName);
+            //var printServer = new LocalPrintServer();            
+            //Printers = printServer.GetPrintQueues(new[] { EnumeratedPrintQueueTypes.Local, EnumeratedPrintQueueTypes.Connections });
+            //var sPrinter = LocalPrintServer.GetDefaultPrintQueue();
+            //SelectedPrinter = Printers.FirstOrDefault(p => p.Name == sPrinter.Name && p.FullName == sPrinter.FullName);
 
-            CardUserPhotoPath = Path.Combine(StartupPath, "photo");
+            //CardUserPhotoPath = Path.Combine(StartupPath, "photo");
+
+            Application.Current.Exit += OnExit;
+        }
+
+        private void OnExit(object sender, ExitEventArgs e)
+        {
+            SaveConfiguration();
         }
 
         #region Device settings
@@ -67,19 +76,19 @@ namespace IDservice.ViewModel
             {
                 _selectedPrinter = value;
                 //TrySetPageSize();
-                if (_selectedPrinter != null && _selectedPrinter.UserPrintTicket != null)
-                {
-                    if (_selectedPrinter.UserPrintTicket.PageMediaSize.Width != null)
-                        PageWidth = (double)_selectedPrinter.UserPrintTicket.PageMediaSize.Width;
-                    if (_selectedPrinter.UserPrintTicket.PageMediaSize.Height != null)
-                        PageHeight = (double)_selectedPrinter.UserPrintTicket.PageMediaSize.Height;
-                    var printcap = _selectedPrinter.GetPrintCapabilities();
-                    CanPrintTwoSides = printcap.DuplexingCapability.Contains(Duplexing.TwoSidedLongEdge);
-                    if (!CanPrintTwoSides) PrintTwoSides = false;
-                    RaisePropertyChanged("CanPrintTwoSides");
-                    RaisePropertyChanged("PageWidth");
-                    RaisePropertyChanged("PageHeight");
-                }
+                //if (_selectedPrinter != null && _selectedPrinter.UserPrintTicket != null)
+                //{
+                //    if (_selectedPrinter.UserPrintTicket.PageMediaSize.Width != null)
+                //        PageWidth = (double)_selectedPrinter.UserPrintTicket.PageMediaSize.Width;
+                //    if (_selectedPrinter.UserPrintTicket.PageMediaSize.Height != null)
+                //        PageHeight = (double)_selectedPrinter.UserPrintTicket.PageMediaSize.Height;
+                //    var printcap = _selectedPrinter.GetPrintCapabilities();
+                //    CanPrintTwoSides = printcap.DuplexingCapability.Contains(Duplexing.TwoSidedLongEdge);
+                //    if (!CanPrintTwoSides) PrintTwoSides = false;
+                //    RaisePropertyChanged("CanPrintTwoSides");
+                //    RaisePropertyChanged("PageWidth");
+                //    RaisePropertyChanged("PageHeight");
+                //}
                 RaisePropertyChanged("SelectedPrinter");
             }
         }
@@ -93,92 +102,33 @@ namespace IDservice.ViewModel
             set
             {
                 _printTwoSides = value;
-                var deltaTicket = new PrintTicket();
-                deltaTicket.Duplexing = _printTwoSides ? Duplexing.TwoSidedLongEdge : Duplexing.OneSided;
-                var result = SelectedPrinter.MergeAndValidatePrintTicket(SelectedPrinter.UserPrintTicket, deltaTicket);
-                if (result.ValidatedPrintTicket.Duplexing == (_printTwoSides ? Duplexing.TwoSidedLongEdge : Duplexing.OneSided))
-                {
-                    SelectedPrinter.UserPrintTicket = result.ValidatedPrintTicket;
-                    SelectedPrinter.Commit();
-                }
+                //var deltaTicket = new PrintTicket();
+                //deltaTicket.Duplexing = _printTwoSides ? Duplexing.TwoSidedLongEdge : Duplexing.OneSided;
+                //var result = SelectedPrinter.MergeAndValidatePrintTicket(SelectedPrinter.UserPrintTicket, deltaTicket);
+                //if (result.ValidatedPrintTicket.Duplexing == (_printTwoSides ? Duplexing.TwoSidedLongEdge : Duplexing.OneSided))
+                //{
+                //    SelectedPrinter.UserPrintTicket = result.ValidatedPrintTicket;
+                //    SelectedPrinter.Commit();
+                //}
                 RaisePropertyChanged("PrintTwoSides");
             }
         }
 
         private void TrySetPageSize()
         {
-            if (SelectedLayout == null) return;
-            var size = new PageMediaSize(PageMediaSizeName.Unknown, SelectedLayout.Width, SelectedLayout.Height);
-            var deltaTicket = new PrintTicket();
-            deltaTicket.PageMediaSize = size;
-            SelectedPrinter.UserPrintTicket.PageMediaSize = size;
-            SelectedPrinter.UserPrintTicket.PageBorderless = PageBorderless.Borderless;
-            SelectedPrinter.Commit();
+            //if (SelectedLayout == null) return;
+            //var size = new PageMediaSize(PageMediaSizeName.Unknown, SelectedLayout.Width, SelectedLayout.Height);
+            //var deltaTicket = new PrintTicket();
+            //deltaTicket.PageMediaSize = size;
+            //SelectedPrinter.UserPrintTicket.PageMediaSize = size;
+            //SelectedPrinter.UserPrintTicket.PageBorderless = PageBorderless.Borderless;
+            //SelectedPrinter.Commit();
             //var result = SelectedPrinter.MergeAndValidatePrintTicket(SelectedPrinter.UserPrintTicket, deltaTicket);
             //if (result.ValidatedPrintTicket.PageMediaSize == size)
             //{
             //    SelectedPrinter.UserPrintTicket = result.ValidatedPrintTicket;
             //    SelectedPrinter.Commit();
             //}
-        }
-
-        #endregion
-
-        #region Card printing settings
-
-        private double _printMarginX;
-        public double PrintMarginX
-        {
-            get { return _printMarginX; }
-            set
-            {
-                _printMarginX = value;
-                SetConfigProperty("PrintMarginX", _printMarginX);
-                RaisePropertyChanged("PrintMarginX");
-                RaisePropertyChanged("PrintMargin");
-            }
-        }
-
-        private double _printMarginY;
-        public double PrintMarginY
-        {
-            get { return _printMarginY; }
-            set
-            {
-                _printMarginY = value;
-                SetConfigProperty("PrintMarginY", _printMarginY);
-                RaisePropertyChanged("PrintMarginY");
-                RaisePropertyChanged("PrintMargin");
-            }
-        }
-
-        public Thickness PrintMargin
-        {
-            get { return new Thickness(PrintMarginX, PrintMarginY, 0, 0); }
-        }        
-
-        private bool _printOtherside = true;
-        public bool PrintOtherside
-        {
-            get { return _printOtherside; }
-            set
-            {
-                _printOtherside = value;
-                SetConfigProperty("PrintOtherside", _printOtherside);
-                RaisePropertyChanged("PrintOtherside");
-            }
-        }
-
-        private bool _printBackground = true;
-        public bool PrintBackground
-        {
-            get { return _printBackground; }
-            set
-            {
-                _printBackground = value;
-                SetConfigProperty("PrintBackground", _printBackground);
-                RaisePropertyChanged("PrintBackground");
-            }
         }
 
         #endregion
@@ -250,19 +200,7 @@ namespace IDservice.ViewModel
         {
             get { return _cardUserNameList; }
             set { _cardUserNameList = value; RaisePropertyChanged("CardUserNameList"); }
-        }
-
-        private bool _wrapCardUserName;
-        public bool WrapCardUserName
-        {
-            get { return _wrapCardUserName; }
-            set
-            {
-                _wrapCardUserName = value;
-                SetConfigProperty("WrapCardUserName", _wrapCardUserName);
-                RaisePropertyChanged("WrapCardUserName");
-            }
-        }
+        }        
 
         #endregion
 
@@ -299,7 +237,13 @@ namespace IDservice.ViewModel
         public Layout SelectedLayout
         {
             get { return _selectedLayout; }
-            set { _selectedLayout = value; RaisePropertyChanged("SelectedLayout"); }
+            set
+            {
+                _selectedLayout = value;
+                if (AppMode == AppModes.PrintCards)
+                    ThreadPool.QueueUserWorkItem(SaveConfiguration);
+                RaisePropertyChanged("SelectedLayout");
+            }
         }
 
         #endregion

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Windows;
 using System.Windows.Media;
 using System.Xml.Serialization;
 using IDservice.ViewModel;
@@ -175,6 +176,71 @@ namespace IDservice.Model
             get { return new SolidColorBrush(NameColor);}
         }
 
+        [XmlAttribute]
+        public double PrintMarginX
+        {
+            get { return _printMarginX; }
+            set
+            {
+                _printMarginX = value;
+                RaisePropertyChanged("PrintMarginX");
+                RaisePropertyChanged("PrintMargin");
+            }
+        }
+
+        [XmlAttribute]
+        public double PrintMarginY
+        {
+            get { return _printMarginY; }
+            set
+            {
+                _printMarginY = value;
+                RaisePropertyChanged("PrintMarginY");
+                RaisePropertyChanged("PrintMargin");
+            }
+        }
+
+        public Thickness PrintMargin
+        {
+            get { return new Thickness(PrintMarginX, PrintMarginY, 0, 0); }
+        }
+
+        [XmlAttribute]
+        public bool PrintOtherside
+        {
+            get { return _printOtherside; }
+            set
+            {
+                _printOtherside = value;
+                RaisePropertyChanged("PrintOtherside");
+            }
+        }
+
+        [XmlAttribute]
+        public bool PrintBackground
+        {
+            get { return _printBackground; }
+            set
+            {
+                _printBackground = value;
+                RaisePropertyChanged("PrintBackground");
+            }
+        }
+
+        [XmlAttribute]
+        public bool WrapCardUserName
+        {
+            get { return _wrapCardUserName; }
+            set { _wrapCardUserName = value; RaisePropertyChanged("WrapCardUserName"); }
+        }
+
+        [XmlAttribute]
+        public bool StretchCardUserPhoto
+        {
+            get { return _stretchCardUserPhoto; }
+            set { _stretchCardUserPhoto = value; RaisePropertyChanged("StretchCardUserPhoto"); }
+        }
+
         private Layout _layout;
         private double _width;
         private double _height;
@@ -188,6 +254,12 @@ namespace IDservice.Model
         private double _nameHeight;
         private Color _nameColor;
         private string _name;
+        private double _printMarginX;
+        private double _printMarginY;
+        private bool _printOtherside = true;
+        private bool _printBackground = true;
+        private bool _wrapCardUserName;
+        private bool _stretchCardUserPhoto;
 
         public void BeginEdit()
         {

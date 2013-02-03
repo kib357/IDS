@@ -13,6 +13,8 @@ namespace IDservice.View
     /// </summary>
     public partial class PrintView : UserControl
     {
+        private PrintDialog pr = new PrintDialog();
+
         public PrintView()
         {
             InitializeComponent();
@@ -30,17 +32,36 @@ namespace IDservice.View
 
         private void Print_OnClick(object sender, RoutedEventArgs e)
         {
-            var pr = new PrintDialog();
-            if (pr.ShowDialog() == true)
+            var res = pr.ShowDialog();
+            var vm = DataContext as IdViewModel;
+            if (vm.SelectedLayout.PrintBackground == false)
+                BackgroundImage.Visibility = Visibility.Hidden;
+
+            var ticket = pr.PrintTicket;
+            var x = vm.SelectedLayout.PrintMarginX;
+            var y = vm.SelectedLayout.PrintMarginY;
+            if (ticket.PageMediaSize.Width.HasValue && ticket.PageMediaSize.Height.HasValue)
             {
-                pr.PrintVisual(Area, "grid");
+                vm.SelectedLayout.PrintMarginX = x + pr.PrintableAreaWidth - ticket.PageMediaSize.Width.Value;
+                vm.SelectedLayout.PrintMarginY = y + pr.PrintableAreaHeight - ticket.PageMediaSize.Height.Value;
             }
+            Area.Width = pr.PrintableAreaWidth;
+            Area.Height = pr.PrintableAreaHeight;
+            Area.Measure(new Size(Area.Width, Area.Height));
+            Area.Arrange(new Rect(0, 0, Area.Width, Area.Height));
+
+            if (res == true)
+                pr.PrintVisual(Area, "ID card");
+
+            vm.SelectedLayout.PrintMarginX = x;
+            vm.SelectedLayout.PrintMarginY = y;
+            BackgroundImage.Visibility = Visibility.Visible;
         }
 
         private void PrintButton_Click(object sender, RoutedEventArgs e)
         {
             var vm = DataContext as IdViewModel;
-            if (vm.PrintBackground == false)
+            if (vm.SelectedLayout.PrintBackground == false)
                 BackgroundImage.Visibility = Visibility.Hidden;
             var queue = vm.SelectedPrinter;
             queue.CurrentJobSettings.Description = "idservice";
@@ -54,14 +75,15 @@ namespace IDservice.View
             collator.Write(Area);
             collator.Write(Area);
             collator.EndBatchWrite();
-            //writer.WriteAsync(Area);
-            //var pr = new PrintDialog();
-            //if (pr.ShowDialog() == true)
-            //{
-            //    pr.PrintVisual(Area, "grid");
-            //}
+            //writer.WriteAsync(Area);            
+        }
 
-            BackgroundImage.Visibility = Visibility.Visible;
+        private void OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var vm = DataContext as IdViewModel;
+            if (vm == null) return;
+            Area.Width = pr.PrintableAreaWidth;
+            Area.Height = pr.PrintableAreaHeight;
         }
     }
 }
